@@ -3,6 +3,7 @@ package de.ma.modal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Stack;
 
 public class Graph {
 	private Integer initialVertex;
@@ -79,8 +80,8 @@ public class Graph {
 				g.getVertex(index).addEdge(edge);
 			}
 		}
-		g.setInitVertex(initialVertex);
-		
+		if(initialVertex != null)
+			g.setInitVertex(initialVertex);
 		
 		return g;
 	}
@@ -100,5 +101,42 @@ public class Graph {
 		}
 		
 		return true;
+	}
+	
+	public int getDepth(){
+		if(getInitVertex() != null)
+			return getInitVertex().getDepth(this);
+		
+		int d = 0;
+		for (Integer v : vertices.keySet()) {
+			d = Math.max(d, getVertex(v).getDepth(this));
+		}
+		
+		return d;
+	}
+	
+	public boolean allVertReach(){
+		//DFS
+		HashSet<Integer> discovered = new HashSet<>();
+		Stack<Integer> s = new Stack<>();
+		
+		if(initialVertex == null)
+			return false;
+		s.push(initialVertex);
+		
+		while(!s.isEmpty()){
+			int v = s.pop();
+			if(!discovered.contains(v)){
+				discovered.add(v);
+				for (Integer e : getVertex(v).getEdges()) {
+					s.push(e);
+				}
+			}
+		}
+		
+		if(discovered.containsAll(getVertices()))
+			return true;
+		
+		return false;
 	}
 }

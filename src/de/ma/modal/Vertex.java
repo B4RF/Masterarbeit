@@ -40,4 +40,14 @@ public class Vertex {
 		}
 		return v;
 	}
+	
+	public int getDepth(Graph g){
+		int depth = 0;
+		
+		for (Integer e : getEdges()) {
+			depth = Math.max(depth, 1+g.getVertex(e).getDepth(g));
+		}
+		
+		return depth;
+	}
 }

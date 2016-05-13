@@ -132,7 +132,6 @@ public class Gui extends JFrame {
 		while(currentGraph != null){
 			// remove graphs with maxDegree+1 in initial vertex
 			if(currentGraph.getInitVertex().getEdges().size() != maxDegree){
-				
 				Modal modal = new Modal(currentGraph);
 //				ArrayList<Modal> labeled = labelG.labelGraph(modal, modal.getGraph().getInitVertex(), root);
 				enumModals.add(modal);
