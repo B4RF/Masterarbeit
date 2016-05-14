@@ -139,9 +139,9 @@ public class NNFTreeWalker extends TreeWalker<Node, Boolean>{
 	public Node walkConstantNode(Constant node, Boolean arg) {
 		// ~1 = 0, ~0 = 1
 		
-		if(arg){
+		if(arg)
 			node.setValue(!node.getValue());
-		}
+		
 		
 		return node;
 	}

@@ -34,16 +34,16 @@ public class Gui extends JFrame {
 	private static final long serialVersionUID = 1L;
 	static JPanel mainPanel = new JPanel();
 	static JPanel formulaPanel = new JPanel();
-	static JPanel reducePanel = new JPanel();
+	static JPanel nnfPanel = new JPanel();
 	static JPanel satPanel = new JPanel();
 	static JTextField formula = new JTextField();
 	static JButton enumerate = new JButton("Enumerate");
-	static JLabel reduced = new JLabel("-");
+	static JLabel nnf = new JLabel("-");
 	static JLabel satisfiable = new JLabel("-");
 
 	static Lexer lex = new Lexer();
 	static Parser parser = new Parser(lex);
-	
+
 	// Elemente der Auflistung
 	static ArrayList<Modal> enumModals = new ArrayList<Modal>();
 	static JFrame enumFrame = new JFrame();
@@ -52,13 +52,13 @@ public class Gui extends JFrame {
 	public Gui() {
 		setTitle("Modallogic Enumerator");
 		setResizable(false);
-		
+
 		mainPanel.setLayout(new GridLayout(4, 0));
 		add(mainPanel);
-		
+
 		mainPanel.add(formulaPanel);
 		mainPanel.add(enumerate);
-		mainPanel.add(reducePanel);
+		mainPanel.add(nnfPanel);
 		mainPanel.add(satPanel);
 
 		formulaPanel.setLayout(new GridLayout(1, 2));
@@ -66,10 +66,10 @@ public class Gui extends JFrame {
 		formulaPanel.add(formula);
 		formula.setHorizontalAlignment(SwingConstants.CENTER);
 
-		reducePanel.setLayout(new GridLayout(1, 3));
-		reducePanel.add(new JLabel(" Formula in NNF: "));
-		reducePanel.add(reduced);
-		reduced.setHorizontalAlignment(SwingConstants.CENTER);
+		nnfPanel.setLayout(new GridLayout(1, 3));
+		nnfPanel.add(new JLabel(" Formula in NNF: "));
+		nnfPanel.add(nnf);
+		nnf.setHorizontalAlignment(SwingConstants.CENTER);
 
 		satPanel.setLayout(new GridLayout(1, 2));
 		satPanel.add(new JLabel(" Is the formula satisfiable? "));
@@ -84,7 +84,7 @@ public class Gui extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				reduced.setText("-");
+				nnf.setText("-");
 				satisfiable.setText("-");
 				enumModals.clear();
 				enumFrame.dispose();
@@ -92,18 +92,17 @@ public class Gui extends JFrame {
 				String input = formula.getText();
 
 				if (input.equals(""))
-					JOptionPane.showMessageDialog(new JFrame(),
-							"Please insert a formula first.");
+					JOptionPane.showMessageDialog(new JFrame(), "Please insert a formula first.");
 				else {
 					Node root = parser.formula(input);
-					
+
 					updateNNF(root);
 
 					updateSatisfiable(root);
 
 					generateModals(root);
-					
-					if(!enumModals.isEmpty())
+
+					if (!enumModals.isEmpty())
 						showModallist();
 				}
 			}
@@ -116,32 +115,32 @@ public class Gui extends JFrame {
 	}
 
 	protected void generateModals(Node root) {
-//		System.out.println("\nFormel erfolgreich geparst");
-//		
-//		StringDepthTreeWalker sdtw = new StringDepthTreeWalker();
-//		System.out.println(sdtw.walk(root, ""));
+		// System.out.println("\nFormel erfolgreich geparst");
+		//
+		// StringDepthTreeWalker sdtw = new StringDepthTreeWalker();
+		// System.out.println(sdtw.walk(root, ""));
 
 		// needs plus one cause of one incoming transition
-		int maxDegree = root.getMaxDegree()+1;
-		int diameter = root.getModalDepth()*2;
+		int maxDegree = root.getMaxDegree();
+		int diameter = root.getModalDepth() * 2;
 
 		GenerateGraphs genG = new GenerateGraphs(maxDegree, diameter);
 		LabelGraph labelG = new LabelGraph();
 		Graph currentGraph = genG.nextGraph();
-		
-		while(currentGraph != null){
-			// remove graphs with maxDegree+1 in initial vertex
-			if(currentGraph.getInitVertex().getEdges().size() != maxDegree){
-				Modal modal = new Modal(currentGraph);
-//				ArrayList<Modal> labeled = labelG.labelGraph(modal, modal.getGraph().getInitVertex(), root);
-				enumModals.add(modal);
-				// zum prüfen
-//				for (Modal m : labeled) {
-//					if(m.mlMc(root))
-//						enumModals.add(m);
-//					else
-//						System.out.println("Failed to ModalCheck a generated Modal");
-//				}	
+
+		while (currentGraph != null) {
+			Modal modal = new Modal(currentGraph);
+
+//			enumModals.add(modal);
+
+			ArrayList<Modal> labeled = labelG.labelGraph(modal, root);
+
+			// zum prüfen
+			for (Modal m : labeled) {
+				enumModals.add(m);
+
+				if (!m.mlMc(root))
+					System.out.println("Failed to ModalCheck a generated Modal");
 			}
 
 			currentGraph = genG.nextGraph();
@@ -151,11 +150,11 @@ public class Gui extends JFrame {
 	private void updateNNF(Node root) {
 		ReduceTreeWalker rtw = new ReduceTreeWalker();
 		root = rtw.walk(root, null);
-		NNFTreeWalker nnf = new NNFTreeWalker();
-		root = nnf.walk(root, false);
-		
+		NNFTreeWalker ntw = new NNFTreeWalker();
+		root = ntw.walk(root, false);
+
 		StringTreeWalker stw = new StringTreeWalker();
-		reduced.setText(stw.walk(root, ""));
+		nnf.setText(stw.walk(root, ""));
 	}
 
 	protected void updateSatisfiable(Node root) {
@@ -170,13 +169,13 @@ public class Gui extends JFrame {
 		JPanel enumPanel = new JPanel();
 		final JList<String> enumList = new JList<>();
 		final JLabel imageLabel = new JLabel();
-		
+
 		enumList.setModel(new AbstractListModel<String>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public String getElementAt(int i) {
-				return "Graph "+i;
+				return "Graph " + i;
 			}
 
 			@Override
@@ -184,14 +183,14 @@ public class Gui extends JFrame {
 				return enumModals.size();
 			}
 		});
-		
+
 		enumList.addListSelectionListener(new ListSelectionListener() {
-			
+
 			@Override
 			public void valueChanged(ListSelectionEvent evt) {
 				int index = Integer.parseInt(enumList.getSelectedValue().substring(6));
 
-				if(index != modalIndex){
+				if (index != modalIndex) {
 					modalIndex = index;
 					Modal m = enumModals.get(modalIndex);
 					m.draw(imageLabel);
@@ -199,19 +198,19 @@ public class Gui extends JFrame {
 				}
 			}
 		});
-		
+
 		imageLabel.setSize(400, 300);
-		
-		if(enumModals.size() > 8)
+
+		if (enumModals.size() > 8)
 			enumPanel.add(new JScrollPane(enumList));
 		else
 			enumPanel.add(enumList);
-		
+
 		enumPanel.add(imageLabel);
 		enumModals.get(0).draw(imageLabel);
-		
+
 		enumFrame.add(enumPanel);
-		
+
 		enumFrame.setTitle("Satisfying Models");
 		enumFrame.pack();
 		enumFrame.setLocationRelativeTo(null);

@@ -35,7 +35,7 @@ public class MlSatTreeWalker extends TreeWalker<HashSet<Integer>, Modal> {
 		satLeftChild.retainAll(satRightChild); // a&b
 		
 		allVertices.addAll(satLeftChild); // |
-		System.out.println(allVertices);
+//		System.out.println(allVertices);
 		return allVertices;
 	}
 
@@ -49,7 +49,7 @@ public class MlSatTreeWalker extends TreeWalker<HashSet<Integer>, Modal> {
 		
 		allVertices.removeAll(satLeftChild); // ~a
 		allVertices.addAll(satRightChild); // |b
-		System.out.println(allVertices);
+//		System.out.println(allVertices);
 		return allVertices;
 	}
 
@@ -63,7 +63,7 @@ public class MlSatTreeWalker extends TreeWalker<HashSet<Integer>, Modal> {
 		
 		allVertices.removeAll(satRightChild); // ~b
 		allVertices.retainAll(satLeftChild); // &a
-		System.out.println(allVertices);
+//		System.out.println(allVertices);
 		return allVertices;
 	}
 
@@ -83,7 +83,7 @@ public class MlSatTreeWalker extends TreeWalker<HashSet<Integer>, Modal> {
 		allVertices2.retainAll(satRightChild); // &b
 		
 		allVertices.addAll(allVertices2); // |
-		System.out.println(allVertices);
+//		System.out.println(allVertices);
 		return allVertices;
 	}
 
@@ -93,7 +93,7 @@ public class MlSatTreeWalker extends TreeWalker<HashSet<Integer>, Modal> {
 		HashSet<Integer> satRightChild = walk(node.getRight(), arg);
 		
 		satLeftChild.addAll(satRightChild);
-		System.out.println(satLeftChild);
+//		System.out.println(satLeftChild);
 		return satLeftChild;
 	}
 
@@ -102,10 +102,8 @@ public class MlSatTreeWalker extends TreeWalker<HashSet<Integer>, Modal> {
 		HashSet<Integer> satLeftChild = walk(node.getLeft(), arg);
 		HashSet<Integer> satRightChild = walk(node.getRight(), arg);
 
-//		System.out.println("\n"+satLeftChild);
-//		System.out.println(satRightChild);
 		satLeftChild.retainAll(satRightChild);
-		System.out.println(satLeftChild);
+//		System.out.println(satLeftChild);
 		return satLeftChild;
 	}
 
@@ -115,7 +113,7 @@ public class MlSatTreeWalker extends TreeWalker<HashSet<Integer>, Modal> {
 		HashSet<Integer> allVertices = arg.getGraph().getVertices();
 		
 		allVertices.removeAll(satChild);
-		System.out.println(allVertices);
+//		System.out.println(allVertices);
 		return allVertices;
 	}
 
@@ -142,7 +140,7 @@ public class MlSatTreeWalker extends TreeWalker<HashSet<Integer>, Modal> {
 			if(sat)
 				satRoot.add(indexOrigin);
 		}
-		System.out.println(satRoot);
+//		System.out.println(satRoot);
 		return satRoot;
 	}
 
@@ -162,7 +160,7 @@ public class MlSatTreeWalker extends TreeWalker<HashSet<Integer>, Modal> {
 				}
 			}
 		}
-		System.out.println(satRoot);
+//		System.out.println(satRoot);
 		return satRoot;
 	}
 

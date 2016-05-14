@@ -78,7 +78,7 @@ public class MaxDegreeTreeWalker extends TreeWalker<IntWithMax, Integer>{
 	public IntWithMax walkBoxNode(Box node, Integer arg) {
 		IntWithMax iwm = walk(node.getNode(), arg);
 		iwm.setMaxValue(Math.max(iwm.getCurrentValue(), iwm.getMaxValue()));
-		iwm.setCurrentValue(1);
+		iwm.setCurrentValue(0);
 		
 		return iwm;
 	}

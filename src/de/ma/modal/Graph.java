@@ -26,7 +26,7 @@ public class Graph {
 		if(containsVertex(index))
 			return false;
 		
-		vertices.put(index, new Vertex(index));
+		vertices.put(index, new Vertex(this, index));
 		return true;
 	}
 	
@@ -100,16 +100,18 @@ public class Graph {
 			}
 		}
 		
+		//TODO rückrichtung fehlt
+		
 		return true;
 	}
 	
 	public int getDepth(){
 		if(getInitVertex() != null)
-			return getInitVertex().getDepth(this);
+			return getInitVertex().getDepth();
 		
 		int d = 0;
 		for (Integer v : vertices.keySet()) {
-			d = Math.max(d, getVertex(v).getDepth(this));
+			d = Math.max(d, getVertex(v).getDepth());
 		}
 		
 		return d;

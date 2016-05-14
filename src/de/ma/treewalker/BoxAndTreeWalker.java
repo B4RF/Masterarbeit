@@ -101,5 +101,4 @@ public class BoxAndTreeWalker extends TreeWalker<Node, Node> {
 	public Node walkConstantNode(Constant node, Node arg) {
 		return node;
 	}
-
 }

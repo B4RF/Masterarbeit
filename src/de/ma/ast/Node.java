@@ -9,7 +9,6 @@ import de.ma.treewalker.IntWithMax;
 import de.ma.treewalker.MaxDegreeTreeWalker;
 import de.ma.treewalker.ModalDepthTreeWalker;
 import de.ma.treewalker.ReduceTreeWalker;
-import de.ma.treewalker.StringTreeWalker;
 import de.ma.treewalker.TreeWalker;
 
 public abstract class Node implements Cloneable {
@@ -53,8 +52,8 @@ public abstract class Node implements Cloneable {
 		ArrayList<Node> trues = new ArrayList<Node>();
 		trues.add(root);
 
-		StringTreeWalker stw = new StringTreeWalker();
-		System.out.println(stw.walk(root, ""));
+//		StringTreeWalker stw = new StringTreeWalker();
+//		System.out.println(stw.walk(root, ""));
 		
 		return worldIter(trues, new ArrayList<Node>(), new ArrayList<Node>(), new ArrayList<Node>());
 	}

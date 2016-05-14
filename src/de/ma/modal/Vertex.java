@@ -3,11 +3,17 @@ package de.ma.modal;
 import java.util.ArrayList;
 
 public class Vertex {
+	private final Graph graph;
 	private final int index;
 	private final ArrayList<Integer> edges = new ArrayList<>();
 	
-	public Vertex(int i){
+	public Vertex(Graph g, int i){
+		graph = g;
 		index = i;
+	}
+
+	public Graph getGraph() {
+		return graph;
 	}
 
 	public int getIndex() {
@@ -34,18 +40,18 @@ public class Vertex {
 	}
 	
 	public Vertex clone(){
-		Vertex v = new Vertex(index);
+		Vertex v = new Vertex(getGraph(), index);
 		for (int edge : edges) {
 			v.addEdge(edge);
 		}
 		return v;
 	}
 	
-	public int getDepth(Graph g){
+	public int getDepth(){
 		int depth = 0;
 		
 		for (Integer e : getEdges()) {
-			depth = Math.max(depth, 1+g.getVertex(e).getDepth(g));
+			depth = Math.max(depth, 1+getGraph().getVertex(e).getDepth());
 		}
 		
 		return depth;

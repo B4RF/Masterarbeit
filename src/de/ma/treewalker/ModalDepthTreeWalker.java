@@ -71,7 +71,7 @@ public class ModalDepthTreeWalker extends TreeWalker<Integer, Integer>{
 	@Override
 	public Integer walkBoxNode(Box node, Integer arg) {
 		
-		return 1+walk(node.getNode(), null);
+		return walk(node.getNode(), null);
 	}
 
 	@Override

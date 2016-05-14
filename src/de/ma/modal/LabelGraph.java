@@ -3,27 +3,25 @@ package de.ma.modal;
 import java.util.ArrayList;
 
 import de.ma.ast.And;
-import de.ma.ast.Biconditional;
 import de.ma.ast.Box;
-import de.ma.ast.Constant;
 import de.ma.ast.Diamond;
-import de.ma.ast.Implication;
-import de.ma.ast.Negimplication;
 import de.ma.ast.Node;
 import de.ma.ast.Not;
 import de.ma.ast.Or;
 import de.ma.ast.Variable;
-import de.ma.ast.Xor;
 import de.ma.lexer.Tag;
 import de.ma.lexer.Word;
+import de.ma.treewalker.AndOrTreeWalker;
 import de.ma.treewalker.NNFTreeWalker;
 
 public class LabelGraph {
-	public ArrayList<Modal> labelGraph(Modal modal, Vertex vertex, Node root){
+	public ArrayList<Modal> labelGraph(Modal modal, Node root){
+		AndOrTreeWalker aotw = new AndOrTreeWalker();
+		root = aotw.walk(root, null);
 		NNFTreeWalker nnf = new NNFTreeWalker();
 		root = nnf.walk(root, false);
 		
-		return labelNNFGraph(modal, vertex, root);
+		return labelNNFGraph(modal, modal.getGraph().getInitVertex(), root);
 	}
 	
 	private ArrayList<Modal> labelNNFGraph(Modal modal, Vertex vertex, Node root){
@@ -33,6 +31,7 @@ public class LabelGraph {
 		
 		switch(root.getToken().tag){
 		case '#':
+			//TODO fix
 			Box box = (Box) root;
 			
 			// box without successor is fulfilled
@@ -41,7 +40,7 @@ public class LabelGraph {
 
 			ArrayList<Modal> combinedModals = new ArrayList<>();
 			for (Integer index : vertex.getEdges()) {
-				ArrayList<Modal> currentModals = labelGraph(modal, modal.getGraph().getVertex(index), box.getNode());
+				ArrayList<Modal> currentModals = labelNNFGraph(modal, modal.getGraph().getVertex(index), box.getNode());
 				
 				if(combinedModals.isEmpty())
 					combinedModals = currentModals;
@@ -52,28 +51,45 @@ public class LabelGraph {
 			labeled.addAll(combinedModals);
 			break;
 		case '$':
+			//TODO remove isomorph subgraphs
 			Diamond diam = (Diamond) root;
 			
+			ArrayList<Vertex> preEdges = new ArrayList<>();
 			for (Integer index : vertex.getEdges()) {
-				labeled.addAll(labelGraph(modal, modal.getGraph().getVertex(index), diam.getNode()));
+				Vertex edge = modal.getGraph().getVertex(index);
+				boolean isomorph = false;
+				
+				for (Vertex v : preEdges) {
+					if(hasIsomSubg(edge, v)){
+						isomorph = true;
+						break;
+					}
+				}
+				
+				if(!isomorph)
+					labeled.addAll(labelNNFGraph(modal, edge, diam.getNode()));
+				
+				preEdges.add(edge);
 			}
 			break;
 		case Tag.BICONDITION:
-
-			break;
+			// (a&b)|(~a&~b)
+//			break;
 		case Tag.IMPLICATION:
-
-			break;
+			// ~a|b
+//			break;
 		case Tag.NEGIMPLICATION:
-
-			break;
+			// a&~b
+//			break;
 		case '+':
-
+			// (~a&b)|(a&~b)
+			System.out.println("Fail");
 			break;
 		case '|':
 			Or or = (Or) root;
-			ArrayList<Modal> leftOr = labelGraph(modal, vertex, or.getLeft());
-			ArrayList<Modal> rightOr = labelGraph(modal, vertex, or.getRight());
+			
+			ArrayList<Modal> leftOr = labelNNFGraph(modal, vertex, or.getLeft());
+			ArrayList<Modal> rightOr = labelNNFGraph(modal, vertex, or.getRight());
 
 			for (Modal mLeft : leftOr) {
 				labeled.add(mLeft);
@@ -93,8 +109,8 @@ public class LabelGraph {
 			break;
 		case '&':
 			And and = (And) root;
-			ArrayList<Modal> leftAnd = labelGraph(modal, vertex, and.getLeft());
-			ArrayList<Modal> rightAnd = labelGraph(modal, vertex, and.getRight());
+			ArrayList<Modal> leftAnd = labelNNFGraph(modal, vertex, and.getLeft());
+			ArrayList<Modal> rightAnd = labelNNFGraph(modal, vertex, and.getRight());
 			
 			for (Modal mLeft : leftAnd) {
 				for (Modal mRight : rightAnd) {
@@ -140,5 +156,12 @@ public class LabelGraph {
 			}
 		}
 		return combinedModals;
+	}
+	
+	private boolean hasIsomSubg(Vertex v1, Vertex v2){
+		//TODO implement - use nauty shortg.exe?
+		
+		
+		return false;
 	}
 }
