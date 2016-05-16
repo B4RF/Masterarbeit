@@ -10,13 +10,12 @@ public class Bracket extends Node {
 	}
 
 	@Override
-	public <ReturnType, ArgumentType> ReturnType walk(
-			TreeWalker<ReturnType, ArgumentType> walker, ArgumentType arg) {
+	public <ReturnType, ArgumentType> ReturnType walk(TreeWalker<ReturnType, ArgumentType> walker, ArgumentType arg) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	public Bracket clone(){
+
+	public Bracket clone() {
 		return new Bracket(getToken());
 	}
 }

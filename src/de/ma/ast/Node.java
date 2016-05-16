@@ -34,7 +34,7 @@ public abstract class Node implements Cloneable {
 	}
 	
 	public int getMaxDegree(){
-		//TODO calculate max diamond/box in a single world
+		// calculate max diamond in a single world
 		MaxDegreeTreeWalker mdtw = new MaxDegreeTreeWalker();
 		IntWithMax iwm = mdtw.walk(this, null);
 		

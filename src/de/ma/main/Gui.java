@@ -131,6 +131,8 @@ public class Gui extends JFrame {
 		while (currentGraph != null) {
 			Modal modal = new Modal(currentGraph);
 
+			//TODO test formula: $a&$$b&#c
+			
 //			enumModals.add(modal);
 
 			ArrayList<Modal> labeled = labelG.labelGraph(modal, root);

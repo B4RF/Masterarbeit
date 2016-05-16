@@ -20,7 +20,7 @@ public class AndOrTreeWalker extends TreeWalker<Node, Node>{
 	public Node walkBiconditionalNode(Biconditional node, Node arg) {
 		node.setLeft(walk(node.getLeft(), null));
 		node.setRight(walk(node.getRight(), null));
-		// a<->b: (a&b)|(~a&~b): ~(~(a&b)&~(~a&~b))
+		// a<->b: (a&b)|(~a&~b)
 		And leftAnd = new And(new Token('&'), node.getLeft(), node.getRight());
 		And rightAnd = new And(new Token('&'), new Not(new Token('~'), node.getLeft()), new Not(new Token('~'), node.getRight()));
 		Or or = new Or(new Token('|'), leftAnd, rightAnd);
@@ -47,10 +47,9 @@ public class AndOrTreeWalker extends TreeWalker<Node, Node>{
 
 	@Override
 	public Node walkXorNode(Xor node, Node arg) {
-		//TODO
 		node.setLeft(walk(node.getLeft(), null));
 		node.setRight(walk(node.getRight(), null));
-		// a+b: (~a&b)|(a&~b): ~(~(~a&b)&~(a&~b))
+		// a+b: (~a&b)|(a&~b)
 		And leftAnd = new And(new Token('&'), new Not(new Token('~'), node.getLeft()), node.getRight());
 		And rightAnd = new And(new Token('&'), node.getLeft(), new Not(new Token('~'), node.getRight()));
 		Or or = new Or(new Token('|'), leftAnd, rightAnd);

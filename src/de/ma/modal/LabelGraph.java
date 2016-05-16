@@ -31,7 +31,6 @@ public class LabelGraph {
 		
 		switch(root.getToken().tag){
 		case '#':
-			//TODO fix
 			Box box = (Box) root;
 			
 			// box without successor is fulfilled
@@ -51,7 +50,6 @@ public class LabelGraph {
 			labeled.addAll(combinedModals);
 			break;
 		case '$':
-			//TODO remove isomorph subgraphs
 			Diamond diam = (Diamond) root;
 			
 			ArrayList<Vertex> preEdges = new ArrayList<>();
@@ -60,7 +58,7 @@ public class LabelGraph {
 				boolean isomorph = false;
 				
 				for (Vertex v : preEdges) {
-					if(hasIsomSubg(edge, v)){
+					if(edge.isomorphic(v)){
 						isomorph = true;
 						break;
 					}
@@ -156,12 +154,5 @@ public class LabelGraph {
 			}
 		}
 		return combinedModals;
-	}
-	
-	private boolean hasIsomSubg(Vertex v1, Vertex v2){
-		//TODO implement - use nauty shortg.exe?
-		
-		
-		return false;
 	}
 }

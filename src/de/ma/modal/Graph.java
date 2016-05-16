@@ -87,9 +87,11 @@ public class Graph {
 	}
 	
 	public boolean equals(Graph g){
+		//TODO vielleicht isomorphie mit nauty
+		
 		if(this.getInitVertex().getIndex() != g.getInitVertex().getIndex())
 			return false;
-		
+
 		for (int vertex : vertices.keySet()) {
 			if(!g.containsVertex(vertex))
 				return false;
@@ -99,12 +101,20 @@ public class Graph {
 					return false;
 			}
 		}
-		
-		//TODO rückrichtung fehlt
+
+		for (int vertex : g.getVertices()) {
+			if(!this.containsVertex(vertex))
+				return false;
+			
+			for (int edge : g.getVertex(vertex).getEdges()) {
+				if(!this.getVertex(vertex).hasEdge(edge))
+					return false;
+			}
+		}
 		
 		return true;
 	}
-	
+
 	public int getDepth(){
 		if(getInitVertex() != null)
 			return getInitVertex().getDepth();

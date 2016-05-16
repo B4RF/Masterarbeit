@@ -11,9 +11,10 @@ import javax.swing.JLabel;
 import de.ma.ast.Node;
 import de.ma.treewalker.MlSatTreeWalker;
 
-public class Modal { // bnötigt clone() methode?
+public class Modal {
 	private final Graph graph;
 	private final Map<String, HashSet<Integer>> valuation = new HashMap<>();
+	// vars stored without ~
 	private final Map<String, HashSet<Integer>> negValuation = new HashMap<>();
 
 	public Modal(Graph g) {
@@ -66,7 +67,8 @@ public class Modal { // bnötigt clone() methode?
 
 		return vars;
 	}
-
+	
+	// without negative vars
 	public String printVarsFromVertex(Integer v) {
 		String vars = "";
 
@@ -103,7 +105,9 @@ public class Modal { // bnötigt clone() methode?
 			return false;
 
 		if (var.startsWith("~")) {
-			if (getVerticesWithVar(var.substring(1)).contains(index))
+			var = var.substring(1);
+			
+			if (getVerticesWithVar(var).contains(index))
 				return false;
 			if (!containsVar(var)) {
 				negValuation.put(var, new HashSet<Integer>());
@@ -135,8 +139,7 @@ public class Modal { // bnötigt clone() methode?
 
 	public boolean containsVar(String var) {
 		if (var.startsWith("~")) {
-			var = var.substring(1);
-			return negValuation.containsKey(var);
+			return negValuation.containsKey(var.substring(1));
 		}
 		return valuation.containsKey(var);
 	}
@@ -156,7 +159,6 @@ public class Modal { // bnötigt clone() methode?
 	}
 
 	public void draw(JLabel label) {
-		// TODO draw png
 		VisualizeGraph v = new VisualizeGraph();
 		v.visualizeGraph(this, label);
 	}
@@ -182,11 +184,21 @@ public class Modal { // bnötigt clone() methode?
 					return false;
 			}
 		}
+		
 		return true;
 	}
 
 	public void join(Modal m) {
-		addValuation(m.getValuation());
-		addNegValuation(m.getNegValuation());
+		for (String var : m.getValuation().keySet()) {
+			for (Integer index : m.getValuation().get(var)) {
+				addVarToVertex(var, index);
+			}
+		}
+
+		for (String var : m.getNegValuation().keySet()) {
+			for (Integer index : m.getNegValuation().get(var)) {
+				addVarToVertex(var, index);
+			}
+		}
 	}
 }
