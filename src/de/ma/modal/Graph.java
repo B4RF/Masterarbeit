@@ -87,32 +87,10 @@ public class Graph {
 	}
 	
 	public boolean equals(Graph g){
-		//TODO vielleicht isomorphie mit nauty
-		
-		if(this.getInitVertex().getIndex() != g.getInitVertex().getIndex())
+		if(this.getInitVertex() == null || g.getInitVertex() == null)
 			return false;
-
-		for (int vertex : vertices.keySet()) {
-			if(!g.containsVertex(vertex))
-				return false;
-			
-			for (int edge : this.getVertex(vertex).getEdges()) {
-				if(!g.getVertex(vertex).hasEdge(edge))
-					return false;
-			}
-		}
-
-		for (int vertex : g.getVertices()) {
-			if(!this.containsVertex(vertex))
-				return false;
-			
-			for (int edge : g.getVertex(vertex).getEdges()) {
-				if(!this.getVertex(vertex).hasEdge(edge))
-					return false;
-			}
-		}
 		
-		return true;
+		return this.getInitVertex().isomorphic(g.getInitVertex());
 	}
 
 	public int getDepth(){

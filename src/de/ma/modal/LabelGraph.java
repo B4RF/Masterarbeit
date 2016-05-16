@@ -124,11 +124,12 @@ public class LabelGraph {
 			prefix = "~";
 			Not not = (Not) root;
 			root = not.getNode();
+
 			// continues with var because formula is in NNF
 		case Tag.VAR:
 			Variable variable = (Variable) root;
 			String var = prefix + ((Word) variable.getToken()).getVarible();
-			
+
 			if(modal.addVarToVertex(var, vertex.getIndex()))
 				labeled.add(modal);
 			break;
