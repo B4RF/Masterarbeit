@@ -134,7 +134,7 @@ public class Gui extends JFrame {
 			//TODO test formula: $a&$$b&#c
 			
 //			enumModals.add(modal);
-
+			
 			ArrayList<Modal> labeled = labelG.labelGraph(modal, root);
 
 			// zum prüfen

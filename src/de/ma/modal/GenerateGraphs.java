@@ -1,72 +1,134 @@
 package de.ma.modal;
 
 import java.io.BufferedReader;
-import java.io.File;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class GenerateGraphs {
 	int maxDegree;
 	int diameter;
+	
+	int curInitVertex;
+	int curVertices;
 	int maxVertices;
-	int graphIndex;
-	ArrayList<Graph> genGraphs = new ArrayList<>();
+	BufferedReader genReader;
+	BufferedReader dirReader;
+	
+	boolean preDecode;
+	Graph curGraph;
+//	ArrayList<Graph> genGraphs = new ArrayList<>();
+
+	String lastLine = ""; // remove duplicates at 2 vertices
 
 	public GenerateGraphs(int maxD, int diam) {
-		maxDegree = maxD+1;	// because of incoming edges
+		maxDegree = maxD + 1; // because of incoming edges
 		diameter = diam;
-		maxVertices = 0;
+		curVertices = 0;
 
+		maxVertices = 0;
 		// number of vertices for full graph
 		for (int i = 0; i <= diameter / 2; i++) {
 			maxVertices += Math.pow(maxDegree - 1, i);
 		}
 
-		graphIndex = 0;
-		computeGraphs();
-	}
+		try {
+			generateTrees();
 
-	public Graph nextGraph() {
-		if (graphIndex < genGraphs.size()) {
-			return genGraphs.get(graphIndex++);
-		} else {
-			return null;
+			Process directg = Runtime.getRuntime().exec("directg.exe -oT");
+
+			dirReader = new BufferedReader(new InputStreamReader(directg.getInputStream()));
+			BufferedWriter dirWriter = new BufferedWriter(new OutputStreamWriter(directg.getOutputStream()));
+			dirWriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
+	
+	public Graph nextGraph(){
+		try {
+			// check for full generated graphs with different init vertex
+			if(!preDecode && (curInitVertex < curVertices)){
+//				System.out.println("init");
+				return initNextGraph();
+			}
 
-	private void computeGraphs() {
-		for (int curVertices = 1; curVertices <= maxVertices; curVertices++) {
-
-			try {
-//				System.out.println("gentreeg.exe -D" + maxDegree + " -Z0:" + diameter + " " + curVertices + " trees.txt");
-				Runtime.getRuntime()
-						.exec("gentreeg.exe -D" + maxDegree + " -Z0:" + diameter + " " + curVertices + " trees.txt");
-
-				Process directg = Runtime.getRuntime().exec("directg.exe -oT trees.txt");
-				BufferedReader in = new BufferedReader(new InputStreamReader(directg.getInputStream()));
-				String line;
-				String lastLine = ""; // remove duplicates at 2 vertices
-
-				while ((line = in.readLine()) != null) {	
-					if (!lastLine.equals(line)) {
-//						System.out.println(line);
-						addGraphs(line);
-					}
-					lastLine = line;
-				}
-
-				in.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+			// check for directed graphs
+			String directed = dirReader.readLine();
+			if(directed != null){
+//				System.out.println("decode");
+				if(!directed.equals(lastLine))
+					decode(directed);
+				
+				lastLine = directed;
+				return nextGraph();
 			}
 			
-			File f = new File("trees.txt");
-			f.delete();
+			// check for undirected graphs
+			String gentree = genReader.readLine();
+			if (gentree != null) {
+//				System.out.println("generate");
+				Process directg = Runtime.getRuntime().exec("directg.exe -oT");
+				BufferedWriter dirWriter = new BufferedWriter(new OutputStreamWriter(directg.getOutputStream()));
+				dirReader = new BufferedReader(new InputStreamReader(directg.getInputStream()));
+				dirWriter.write(gentree+"\n");
+				dirWriter.close();
+				
+				return nextGraph();
+			}
+			
+			// generate graphs with one more vertex
+			if (generateTrees())
+				return nextGraph();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// no more graphs available
+		return null;
+	}
+
+	private Graph initNextGraph() {
+		Graph graph = curGraph.clone();
+		graph.setInitVertex(curInitVertex);
+		curInitVertex++;
+		
+		// remove graphs with maxdegree in init vertex (no incoming edge
+		// therefore one too many)
+		// remove graphs with depth different than modal depth
+		// remove graphs which have unreachable vertices
+		if ((graph.getInitVertex().getEdges().size() != maxDegree) && (graph.getDepth() == diameter / 2)
+				&& graph.allVertReach()) {
+			return graph;
+		}else{
+			return nextGraph();
 		}
 	}
 
-	private void addGraphs(String line) {
+	private boolean generateTrees() {
+		try {
+			curVertices++;
+			if (curVertices <= maxVertices) {
+				System.out.println("gentreeg.exe -D" + maxDegree + " -Z0:" + diameter + " " + curVertices);
+				Process gentreeg = Runtime.getRuntime()
+						.exec("gentreeg.exe -D" + maxDegree + " -Z0:" + diameter + " " + curVertices);
+				genReader = new BufferedReader(new InputStreamReader(gentreeg.getInputStream()));
+
+				curInitVertex = 0;
+				preDecode = true;
+				return true;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	private void decode(String line) {
+		preDecode = false;
 		String[] strOutput = line.split(" ");
 		ArrayList<Integer> output = new ArrayList<>();
 
@@ -74,25 +136,16 @@ public class GenerateGraphs {
 			output.add(Integer.parseInt(str));
 		}
 
-		Graph g = new Graph();
+		Graph graph = new Graph();
 		for (int i = 0; i < output.get(0); i++) {
-			g.addVertex(i);
+			graph.addVertex(i);
 		}
 
-		for (int i = 2; i < output.get(1)*2+2; i += 2) {
-			g.addEdge(output.get(i), output.get(i+1));
+		for (int i = 2; i < output.get(1) * 2 + 2; i += 2) {
+			graph.addEdge(output.get(i), output.get(i + 1));
 		}
-
-		for (Integer v : g.getVertices()) {
-			Graph graph = g.clone();
-			graph.setInitVertex(v);
-			
-			// remove graphs with maxdegree in init vertex (no incoming edge therefore one too many)
-			// remove graphs with depth different than modal depth
-			// remove graphs which have unreachable vertices
-			if ((graph.getInitVertex().getEdges().size() != maxDegree) && (graph.getDepth() == diameter / 2) && graph.allVertReach()) {
-				genGraphs.add(graph);
-			}
-		}
+		
+		curGraph = graph;
+		curInitVertex = 0;
 	}
 }
