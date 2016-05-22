@@ -109,7 +109,7 @@ public class Modal {
 			
 			if (getVerticesWithVar(var).contains(index))
 				return false;
-			if (!containsVar(var)) {
+			if (!containsVar("~"+var)) {
 				negValuation.put(var, new HashSet<Integer>());
 			}
 
