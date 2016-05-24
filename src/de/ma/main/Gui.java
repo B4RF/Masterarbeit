@@ -82,6 +82,7 @@ public class Gui extends JFrame {
 		nnfPanel.add(nnf);
 		nnf.setHorizontalAlignment(SwingConstants.CENTER);
 
+		//TODO remove?
 		satPanel.setLayout(new GridLayout(1, 2));
 		satPanel.add(new JLabel(" Is the formula satisfiable? "));
 		satPanel.add(satisfiable);
@@ -151,7 +152,7 @@ public class Gui extends JFrame {
 			for (Modal m : labeled) {
 				enumModals.add(m);
 
-				//TODO remove/nur für tests
+				//TODO remove/nur fï¿½r tests
 				if (!m.mlMc(root))
 					System.out.println("Failed to ModalCheck a generated Modal");
 			}
@@ -167,7 +168,18 @@ public class Gui extends JFrame {
 		root = ntw.walk(root, false);
 
 		StringTreeWalker stw = new StringTreeWalker();
-		nnf.setText(stw.walk(root, ""));
+		String formula = stw.walk(root, "");
+		System.out.println(formula);
+		formula = formula.replace("&", "\u2227");
+		formula = formula.replace("|", "\u2228");
+		formula = formula.replace("~>", "\u2227\u00AC"); //TODO change?
+		formula = formula.replace("~", "\u00AC");
+		formula = formula.replace("<->", "\u2194");
+		formula = formula.replace("->", "\u2192");
+		formula = formula.replace("+", "\u2295");
+		formula = formula.replace("$", "\u25CA");
+		formula = formula.replace("#", "\u25A1");
+		nnf.setText(formula);
 	}
 
 	protected void updateSatisfiable(Node root) {
