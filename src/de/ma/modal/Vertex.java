@@ -31,7 +31,7 @@ public class Vertex {
 			return edges.add(i);
 	}
 	
-	public void removeEdge(int i){
+	public void removeEdge(Integer i){
 		edges.remove(i);
 	}
 	
