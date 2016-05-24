@@ -97,9 +97,9 @@ public class GenerateGraphs {
 		
 		// remove graphs with maxdegree in init vertex (no incoming edge
 		// therefore one too many)
-		// remove graphs with depth different than modal depth
+		// remove graphs with depth higher than modal depth
 		// remove graphs which have unreachable vertices
-		if ((graph.getInitVertex().getEdges().size() != maxDegree) && (graph.getDepth() == diameter / 2)
+		if ((graph.getInitVertex().getEdges().size() != maxDegree) && (graph.getDepth() <= diameter / 2)
 				&& graph.allVertReach()) {
 			return graph;
 		}else{
