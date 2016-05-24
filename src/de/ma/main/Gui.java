@@ -5,9 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.AbstractListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -25,6 +27,7 @@ import de.ma.modal.GenerateGraphs;
 import de.ma.modal.Graph;
 import de.ma.modal.LabelGraph;
 import de.ma.modal.Modal;
+import de.ma.modal.Vertex;
 import de.ma.parser.Parser;
 import de.ma.treewalker.NNFTreeWalker;
 import de.ma.treewalker.ReduceTreeWalker;
@@ -34,9 +37,11 @@ public class Gui extends JFrame {
 	private static final long serialVersionUID = 1L;
 	static JPanel mainPanel = new JPanel();
 	static JPanel formulaPanel = new JPanel();
+	static JPanel minPanel = new JPanel();
 	static JPanel nnfPanel = new JPanel();
 	static JPanel satPanel = new JPanel();
 	static JTextField formula = new JTextField();
+	static JCheckBox minimal = new JCheckBox();
 	static JButton enumerate = new JButton("Enumerate");
 	static JLabel nnf = new JLabel("-");
 	static JLabel satisfiable = new JLabel("-");
@@ -53,10 +58,11 @@ public class Gui extends JFrame {
 		setTitle("Modallogic Enumerator");
 		setResizable(false);
 
-		mainPanel.setLayout(new GridLayout(4, 0));
+		mainPanel.setLayout(new GridLayout(5, 0));
 		add(mainPanel);
 
 		mainPanel.add(formulaPanel);
+		mainPanel.add(minPanel);
 		mainPanel.add(enumerate);
 		mainPanel.add(nnfPanel);
 		mainPanel.add(satPanel);
@@ -66,7 +72,12 @@ public class Gui extends JFrame {
 		formulaPanel.add(formula);
 		formula.setHorizontalAlignment(SwingConstants.CENTER);
 
-		nnfPanel.setLayout(new GridLayout(1, 3));
+		// TODO change
+		minPanel.setLayout(new GridLayout(1, 2));
+		minPanel.add(new JLabel(" Only minimal modals "));
+		minPanel.add(minimal);
+
+		nnfPanel.setLayout(new GridLayout(1, 2));
 		nnfPanel.add(new JLabel(" Formula in NNF: "));
 		nnfPanel.add(nnf);
 		nnf.setHorizontalAlignment(SwingConstants.CENTER);
@@ -102,6 +113,9 @@ public class Gui extends JFrame {
 
 					generateModals(root);
 
+					if (minimal.isSelected())
+						removeNonminModals(root);
+
 					if (!enumModals.isEmpty())
 						showModallist();
 				}
@@ -120,7 +134,6 @@ public class Gui extends JFrame {
 		// StringDepthTreeWalker sdtw = new StringDepthTreeWalker();
 		// System.out.println(sdtw.walk(root, ""));
 
-		// needs plus one cause of one incoming transition
 		int maxDegree = root.getMaxDegree();
 		int diameter = root.getModalDepth() * 2;
 
@@ -131,16 +144,14 @@ public class Gui extends JFrame {
 		while (currentGraph != null) {
 			Modal modal = new Modal(currentGraph);
 
-			//TODO test formula: $a&$$b&#c
-			
-//			enumModals.add(modal);
-			
+			// enumModals.add(modal);
+
 			ArrayList<Modal> labeled = labelG.labelGraph(modal, root);
 
-			// zum prüfen
 			for (Modal m : labeled) {
 				enumModals.add(m);
 
+				//TODO remove/nur für tests
 				if (!m.mlMc(root))
 					System.out.println("Failed to ModalCheck a generated Modal");
 			}
@@ -164,6 +175,27 @@ public class Gui extends JFrame {
 			satisfiable.setText("Yes");
 		else
 			satisfiable.setText("No");
+	}
+
+	private void removeNonminModals(Node root) {
+		Iterator<Modal> iter = enumModals.iterator();
+		while (iter.hasNext()) {
+			Modal modal = iter.next();
+
+			modalloop: for (Integer index : modal.getVertices()) {
+				Vertex v = modal.getGraph().getVertex(index);
+
+				for (Integer edge : v.getEdges()) {
+					Modal m = modal.clone();
+					m.getGraph().removeEdge(index, edge);
+
+					if (m.mlMc(root)) {
+						iter.remove();
+						break modalloop;
+					}
+				}
+			}
+		}
 	}
 
 	private void showModallist() {
