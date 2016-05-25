@@ -189,19 +189,16 @@ public class Modal {
 	}
 
 	public void join(Modal m) {
-//		for (String var : m.getValuation().keySet()) {
-//			for (Integer index : m.getValuation().get(var)) {
-//				addVarToVertex(var, index);
-//			}
-//		}
-//
-//		for (String var : m.getNegValuation().keySet()) {
-//			for (Integer index : m.getNegValuation().get(var)) {
-//				addVarToVertex(var, index);
-//			}
-//		}
-		
-		this.addValuation(m.getValuation());
-		this.addNegValuation(m.getNegValuation());
+		for (String var : m.getValuation().keySet()) {
+			for (Integer index : m.getValuation().get(var)) {
+				addVarToVertex(var, index);
+			}
+		}
+
+		for (String var : m.getNegValuation().keySet()) {
+			for (Integer index : m.getNegValuation().get(var)) {
+				addVarToVertex("~"+var, index);
+			}
+		}
 	}
 }
