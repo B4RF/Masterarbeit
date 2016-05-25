@@ -171,16 +171,16 @@ public class Modal {
 	}
 
 	public boolean isCompatible(Modal m) {
-		if (!this.getGraph().equals(m.getGraph()))
+		if (!this.getGraph().isomorphic(m.getGraph()))
 			return false;
 
 		for (int index : graph.getVertices()) {
 			for (String var : this.getVarsFromVertex(index)) {
-				if (m.getNegVarsFromVertex(index).contains("~" + var))
+				if (m.getNegVarsFromVertex(index).contains(var))
 					return false;
 			}
 			for (String var : this.getNegVarsFromVertex(index)) {
-				if (m.getVarsFromVertex(index).contains(var.substring(1)))
+				if (m.getVarsFromVertex(index).contains(var))
 					return false;
 			}
 		}
@@ -189,16 +189,19 @@ public class Modal {
 	}
 
 	public void join(Modal m) {
-		for (String var : m.getValuation().keySet()) {
-			for (Integer index : m.getValuation().get(var)) {
-				addVarToVertex(var, index);
-			}
-		}
-
-		for (String var : m.getNegValuation().keySet()) {
-			for (Integer index : m.getNegValuation().get(var)) {
-				addVarToVertex(var, index);
-			}
-		}
+//		for (String var : m.getValuation().keySet()) {
+//			for (Integer index : m.getValuation().get(var)) {
+//				addVarToVertex(var, index);
+//			}
+//		}
+//
+//		for (String var : m.getNegValuation().keySet()) {
+//			for (Integer index : m.getNegValuation().get(var)) {
+//				addVarToVertex(var, index);
+//			}
+//		}
+		
+		this.addValuation(m.getValuation());
+		this.addNegValuation(m.getNegValuation());
 	}
 }
