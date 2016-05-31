@@ -86,7 +86,7 @@ public class Graph {
 		return g;
 	}
 	
-	public boolean equals(Graph g){
+	public boolean isomorphic(Graph g){
 		if(this.getInitVertex() == null || g.getInitVertex() == null)
 			return false;
 		
@@ -103,6 +103,7 @@ public class Graph {
 		}
 		
 		return d;
+		//TODO change to DFS (works for all graphs
 	}
 	
 	public boolean allVertReach(){

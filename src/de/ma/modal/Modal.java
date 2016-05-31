@@ -130,8 +130,7 @@ public class Modal {
 			return false;
 
 		if (var.startsWith("~")) {
-			var = var.substring(1);
-			return negValuation.get(var).remove(index);
+			return negValuation.get(var.substring(1)).remove(index);
 		}
 
 		return valuation.get(var).remove(index);

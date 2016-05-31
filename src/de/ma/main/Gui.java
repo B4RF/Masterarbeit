@@ -72,7 +72,7 @@ public class Gui extends JFrame {
 		formulaPanel.add(formula);
 		formula.setHorizontalAlignment(SwingConstants.CENTER);
 
-		// TODO change
+		// TODO change JCheckbox
 		minPanel.setLayout(new GridLayout(1, 2));
 		minPanel.add(new JLabel(" Only minimal modals "));
 		minPanel.add(minimal);
@@ -110,6 +110,7 @@ public class Gui extends JFrame {
 
 					updateNNF(root);
 
+					//TODO a|~a need to fix
 					updateSatisfiable(root);
 
 					generateModals(root);
@@ -117,7 +118,9 @@ public class Gui extends JFrame {
 					if (minimal.isSelected())
 						removeNonminModals(root);
 
-					if (!enumModals.isEmpty())
+					if (enumModals.isEmpty())
+						JOptionPane.showMessageDialog(new JFrame(), "No satisfying modal generated.");
+					else
 						showModallist();
 				}
 			}
@@ -152,7 +155,7 @@ public class Gui extends JFrame {
 			for (Modal m : labeled) {
 				enumModals.add(m);
 
-				//TODO remove/nur f�r tests
+				//TODO remove/nur fuer tests
 				if (!m.mlMc(root))
 					System.out.println("Failed to ModalCheck a generated Modal");
 			}
@@ -169,7 +172,7 @@ public class Gui extends JFrame {
 
 		StringTreeWalker stw = new StringTreeWalker();
 		String formula = stw.walk(root, "");
-		System.out.println(formula);
+
 		formula = formula.replace("&", "\u2227");
 		formula = formula.replace("|", "\u2228");
 		formula = formula.replace("~>", "\u2227\u00AC"); //TODO change?

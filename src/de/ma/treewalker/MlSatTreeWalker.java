@@ -131,7 +131,7 @@ public class MlSatTreeWalker extends TreeWalker<HashSet<Integer>, Modal> {
 			edges = arg.getGraph().getVertex(indexOrigin).getEdges();
 			
 			for (Integer indexTarget : edges) {
-				// kein nachfolger darf formel nicht erfüllen
+				// kein nachfolger darf formel nicht erfuellen
 				if(!satChild.contains(indexTarget)){
 					sat = false;
 				}
@@ -153,7 +153,7 @@ public class MlSatTreeWalker extends TreeWalker<HashSet<Integer>, Modal> {
 		
 		for (Integer indexOrigin : allVertices) {
 			for (Integer indexTarget : satChild) {
-				// wenigstens ein nachfolger muss formel erfüllen
+				// wenigstens ein nachfolger muss formel erfï¿½llen
 				if(arg.getGraph().containsEdge(indexOrigin, indexTarget)){
 					satRoot.add(indexOrigin);
 					break;

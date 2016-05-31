@@ -61,6 +61,8 @@ public class Vertex {
 		if(this.getEdges().size() != v.getEdges().size())
 			return false;
 		
+		//TODO variablen vergleichen $a&$$b
+		
 		if(this.getEdges().size() == 0)
 			return true;
 		

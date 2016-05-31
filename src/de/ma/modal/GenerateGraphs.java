@@ -19,7 +19,6 @@ public class GenerateGraphs {
 	
 	boolean preDecode;
 	Graph curGraph;
-//	ArrayList<Graph> genGraphs = new ArrayList<>();
 
 	String lastLine = ""; // remove duplicates at 2 vertices
 
@@ -50,6 +49,7 @@ public class GenerateGraphs {
 	public Graph nextGraph(){
 		try {
 			// check for full generated graphs with different init vertex
+//			System.out.println(curInitVertex + " " + curVertices);
 			if(!preDecode && (curInitVertex < curVertices)){
 //				System.out.println("init");
 				return initNextGraph();
@@ -92,7 +92,7 @@ public class GenerateGraphs {
 
 	private Graph initNextGraph() {
 		Graph graph = curGraph.clone();
-		graph.setInitVertex(curInitVertex);
+		curGraph.setInitVertex(curInitVertex);
 		curInitVertex++;
 		
 		// remove graphs with maxdegree in init vertex (no incoming edge
@@ -111,7 +111,7 @@ public class GenerateGraphs {
 		try {
 			curVertices++;
 			if (curVertices <= maxVertices) {
-				System.out.println("gentreeg.exe -D" + maxDegree + " -Z0:" + diameter + " " + curVertices);
+//				System.out.println("gentreeg.exe -D" + maxDegree + " -Z0:" + diameter + " " + curVertices);
 				Process gentreeg = Runtime.getRuntime()
 						.exec("gentreeg.exe -D" + maxDegree + " -Z0:" + diameter + " " + curVertices);
 				genReader = new BufferedReader(new InputStreamReader(gentreeg.getInputStream()));
