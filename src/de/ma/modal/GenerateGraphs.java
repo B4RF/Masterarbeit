@@ -52,34 +52,37 @@ public class GenerateGraphs {
 		try {
 			do {
 				while (!nextTree) {
-					// check for full generated graphs with different init
-					// vertex
+					
+					// check for full generated graphs with different init vertex
 					if (!preDecode && (curInitVertex < curVertices)) {
 						// System.out.println("init");
 						if (initNextGraph())
 							return curGraph;
 
 					} else {
+						
 						// check for directed graphs
 						String directed = dirReader.readLine();
 						if (directed != null) {
 							// System.out.println("decode");
-							if (!directed.equals(lastLine))
-								decode(directed);
-
-							lastLine = directed;
+							decode(directed);
 
 						} else {
+							
 							// check for undirected graphs
 							String gentree = genReader.readLine();
 							if (gentree != null) {
 								// System.out.println("generate");
-								Process directg = Runtime.getRuntime().exec("directg.exe -oT");
-								BufferedWriter dirWriter = new BufferedWriter(
-										new OutputStreamWriter(directg.getOutputStream()));
-								dirReader = new BufferedReader(new InputStreamReader(directg.getInputStream()));
-								dirWriter.write(gentree + "\n");
-								dirWriter.close();
+								if (!gentree.equals(lastLine)) {
+									Process directg = Runtime.getRuntime().exec("directg.exe -oT");
+									BufferedWriter dirWriter = new BufferedWriter(
+											new OutputStreamWriter(directg.getOutputStream()));
+									dirReader = new BufferedReader(new InputStreamReader(directg.getInputStream()));
+									dirWriter.write(gentree + "\n");
+									dirWriter.close();
+								}
+
+								lastLine = gentree;
 							} else {
 								nextTree = true;
 							}

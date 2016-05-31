@@ -37,11 +37,14 @@ public class Gui extends JFrame {
 	private static final long serialVersionUID = 1L;
 	static JPanel mainPanel = new JPanel();
 	static JPanel formulaPanel = new JPanel();
-	static JPanel minPanel = new JPanel();
+	static JPanel conditionPanel1 = new JPanel();
+	static JPanel conditionPanel2 = new JPanel();
 	static JPanel nnfPanel = new JPanel();
-	static JPanel satPanel = new JPanel();
 	static JTextField formula = new JTextField();
-	static JCheckBox minimal = new JCheckBox();
+	static JCheckBox minimal = new JCheckBox("minimal");
+	static JCheckBox reflexive = new JCheckBox("reflexive");
+	static JCheckBox transitive = new JCheckBox("transitive");
+	static JCheckBox serial = new JCheckBox("serial");
 	static JButton enumerate = new JButton("Enumerate");
 	static JLabel nnf = new JLabel("-");
 	static JLabel satisfiable = new JLabel("-");
@@ -62,31 +65,34 @@ public class Gui extends JFrame {
 		add(mainPanel);
 
 		mainPanel.add(formulaPanel);
-		mainPanel.add(minPanel);
+		mainPanel.add(conditionPanel1);
+		mainPanel.add(conditionPanel2);
 		mainPanel.add(enumerate);
 		mainPanel.add(nnfPanel);
-		mainPanel.add(satPanel);
+		// mainPanel.add(satPanel);
 
 		formulaPanel.setLayout(new GridLayout(1, 2));
-		formulaPanel.add(new JLabel(" Insert modallogic formula: "));
+		formulaPanel.add(new JLabel(" Insert modallogic formula:  "));
 		formulaPanel.add(formula);
 		formula.setHorizontalAlignment(SwingConstants.CENTER);
 
-		// TODO change JCheckbox
-		minPanel.setLayout(new GridLayout(1, 2));
-		minPanel.add(new JLabel(" Only minimal modals "));
-		minPanel.add(minimal);
+		conditionPanel1.setLayout(new GridLayout(1, 2));
+		conditionPanel1.add(minimal);
+		conditionPanel1.add(reflexive);
+		conditionPanel2.setLayout(new GridLayout(1, 2));
+		conditionPanel2.add(transitive);
+		conditionPanel2.add(serial);
 
 		nnfPanel.setLayout(new GridLayout(1, 2));
 		nnfPanel.add(new JLabel(" Formula in NNF: "));
 		nnfPanel.add(nnf);
 		nnf.setHorizontalAlignment(SwingConstants.CENTER);
 
-		//TODO remove?
-		satPanel.setLayout(new GridLayout(1, 2));
-		satPanel.add(new JLabel(" Is the formula satisfiable? "));
-		satPanel.add(satisfiable);
-		satisfiable.setHorizontalAlignment(SwingConstants.CENTER);
+		// TODO remove?
+		// satPanel.setLayout(new GridLayout(1, 2));
+		// satPanel.add(new JLabel(" Is the formula satisfiable? "));
+		// satPanel.add(satisfiable);
+		// satisfiable.setHorizontalAlignment(SwingConstants.CENTER);
 
 		this.pack();
 		setLocationRelativeTo(null);
@@ -110,13 +116,22 @@ public class Gui extends JFrame {
 
 					updateNNF(root);
 
-					//TODO a|~a need to fix
+					// TODO a|~a need to fix
 					updateSatisfiable(root);
 
 					generateModals(root);
 
 					if (minimal.isSelected())
-						removeNonminModals(root);
+						removeNonMinimal(root);
+
+					if (reflexive.isSelected())
+						 removeNonReflexive();
+
+					if (transitive.isSelected())
+						removeNonTransitive();
+
+					if (serial.isSelected())
+						removeNonSerial();
 
 					if (enumModals.isEmpty())
 						JOptionPane.showMessageDialog(new JFrame(), "No satisfying modal generated.");
@@ -155,7 +170,7 @@ public class Gui extends JFrame {
 			for (Modal m : labeled) {
 				enumModals.add(m);
 
-				//TODO remove/nur fuer tests
+				// TODO remove/nur fuer tests
 				if (!m.mlMc(root))
 					System.out.println("Failed to ModalCheck a generated Modal");
 			}
@@ -175,7 +190,7 @@ public class Gui extends JFrame {
 
 		formula = formula.replace("&", "\u2227");
 		formula = formula.replace("|", "\u2228");
-		formula = formula.replace("~>", "\u2227\u00AC"); //TODO change?
+		formula = formula.replace("~>", "\u2227\u00AC"); // TODO change?
 		formula = formula.replace("~", "\u00AC");
 		formula = formula.replace("<->", "\u2194");
 		formula = formula.replace("->", "\u2192");
@@ -192,7 +207,7 @@ public class Gui extends JFrame {
 			satisfiable.setText("No");
 	}
 
-	private void removeNonminModals(Node root) {
+	private void removeNonMinimal(Node root) {
 		Iterator<Modal> iter = enumModals.iterator();
 		while (iter.hasNext()) {
 			Modal modal = iter.next();
@@ -208,6 +223,62 @@ public class Gui extends JFrame {
 						iter.remove();
 						break modalloop;
 					}
+				}
+			}
+		}
+	}
+
+	private void removeNonReflexive() {
+		Iterator<Modal> iter = enumModals.iterator();
+		while (iter.hasNext()) {
+			Modal modal = iter.next();
+
+			for (Integer index : modal.getVertices()) {
+				Vertex v = modal.getGraph().getVertex(index);
+
+				if (!v.hasEdge(v.getIndex())){
+					iter.remove();
+					break;
+				}
+			}
+		}
+	}
+
+	private void removeNonTransitive() {
+		Iterator<Modal> iter = enumModals.iterator();
+		while (iter.hasNext()) {
+			Modal modal = iter.next();
+			
+			// uRv & vRw -> uRw
+			modalloop: for (Integer u : modal.getVertices()) {
+				Vertex uVertex = modal.getGraph().getVertex(u);
+
+				for (Integer v : uVertex.getEdges()) {
+					Vertex vVertex = modal.getGraph().getVertex(u);
+					
+					for (Integer w : vVertex.getEdges()) {
+						
+						if(!modal.getGraph().containsEdge(u, w)){
+							iter.remove();
+							break modalloop;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private void removeNonSerial() {
+		Iterator<Modal> iter = enumModals.iterator();
+		while (iter.hasNext()) {
+			Modal modal = iter.next();
+
+			for (Integer index : modal.getVertices()) {
+				Vertex v = modal.getGraph().getVertex(index);
+
+				if (v.getEdges().isEmpty()){
+					iter.remove();
+					break;
 				}
 			}
 		}
