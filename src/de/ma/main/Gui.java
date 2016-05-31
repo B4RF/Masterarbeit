@@ -254,7 +254,7 @@ public class Gui extends JFrame {
 				Vertex uVertex = modal.getGraph().getVertex(u);
 
 				for (Integer v : uVertex.getEdges()) {
-					Vertex vVertex = modal.getGraph().getVertex(u);
+					Vertex vVertex = modal.getGraph().getVertex(v);
 					
 					for (Integer w : vVertex.getEdges()) {
 						
