@@ -124,15 +124,6 @@ public class Gui extends JFrame {
 					if (minimal.isSelected())
 						removeNonMinimal(root);
 
-					if (reflexive.isSelected())
-						 removeNonReflexive();
-
-					if (transitive.isSelected())
-						removeNonTransitive();
-
-					if (serial.isSelected())
-						removeNonSerial();
-
 					if (enumModals.isEmpty())
 						JOptionPane.showMessageDialog(new JFrame(), "No satisfying modal generated.");
 					else
@@ -156,7 +147,8 @@ public class Gui extends JFrame {
 		int maxDegree = root.getMaxDegree();
 		int diameter = root.getModalDepth() * 2;
 
-		GenerateGraphs genG = new GenerateGraphs(maxDegree, diameter);
+		GenerateGraphs genG = new GenerateGraphs(maxDegree, diameter, reflexive.isSelected(), transitive.isSelected(),
+				serial.isSelected());
 		LabelGraph labelG = new LabelGraph();
 		Graph currentGraph = genG.nextGraph();
 
@@ -223,62 +215,6 @@ public class Gui extends JFrame {
 						iter.remove();
 						break modalloop;
 					}
-				}
-			}
-		}
-	}
-
-	private void removeNonReflexive() {
-		Iterator<Modal> iter = enumModals.iterator();
-		while (iter.hasNext()) {
-			Modal modal = iter.next();
-
-			for (Integer index : modal.getVertices()) {
-				Vertex v = modal.getGraph().getVertex(index);
-
-				if (!v.hasEdge(v.getIndex())){
-					iter.remove();
-					break;
-				}
-			}
-		}
-	}
-
-	private void removeNonTransitive() {
-		Iterator<Modal> iter = enumModals.iterator();
-		while (iter.hasNext()) {
-			Modal modal = iter.next();
-			
-			// uRv & vRw -> uRw
-			modalloop: for (Integer u : modal.getVertices()) {
-				Vertex uVertex = modal.getGraph().getVertex(u);
-
-				for (Integer v : uVertex.getEdges()) {
-					Vertex vVertex = modal.getGraph().getVertex(v);
-					
-					for (Integer w : vVertex.getEdges()) {
-						
-						if(!modal.getGraph().containsEdge(u, w)){
-							iter.remove();
-							break modalloop;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	private void removeNonSerial() {
-		Iterator<Modal> iter = enumModals.iterator();
-		while (iter.hasNext()) {
-			Modal modal = iter.next();
-
-			for (Integer index : modal.getVertices()) {
-				Vertex v = modal.getGraph().getVertex(index);
-
-				if (v.getEdges().isEmpty()){
-					iter.remove();
-					break;
 				}
 			}
 		}

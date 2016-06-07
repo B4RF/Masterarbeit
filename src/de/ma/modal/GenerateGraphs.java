@@ -14,6 +14,9 @@ public class GenerateGraphs {
 	int curInitVertex;
 	int curVertices;
 	int maxVertices;
+	boolean reflexive;
+	boolean transitive;
+	boolean serial;
 	BufferedReader genReader;
 	BufferedReader dirReader;
 
@@ -22,9 +25,12 @@ public class GenerateGraphs {
 
 	String lastLine = ""; // remove duplicates at 2 vertices
 
-	public GenerateGraphs(int maxD, int diam) {
+	public GenerateGraphs(int maxD, int diam, boolean ref, boolean trans, boolean ser) {
 		maxDegree = maxD + 1; // because of incoming edges
 		diameter = diam;
+		reflexive = ref;
+		transitive = trans;
+		serial = ser;
 		curVertices = 0;
 
 		maxVertices = 0;
@@ -110,6 +116,46 @@ public class GenerateGraphs {
 		// remove graphs which have unreachable vertices
 		if ((curGraph.getInitVertex().getEdges().size() != maxDegree) && (curGraph.getDepth() <= diameter / 2)
 				&& curGraph.allVertReach()) {
+			
+			if(reflexive){
+				for (Integer index : curGraph.getVertices()) {
+					Vertex v = curGraph.getVertex(index);
+
+					if (!v.hasEdge(v.getIndex())){
+						return false;
+					}
+				}
+			}
+			
+			//TODO vielleicht transitive hülle nutzen
+			if(transitive){
+				// uRv & vRw -> uRw
+				for (Integer u : curGraph.getVertices()) {
+					Vertex uVertex = curGraph.getVertex(u);
+
+					for (Integer v : uVertex.getEdges()) {
+						Vertex vVertex = curGraph.getVertex(v);
+						
+						for (Integer w : vVertex.getEdges()) {
+							
+							if(!curGraph.containsEdge(u, w)){
+								return false;
+							}
+						}
+					}
+				}
+			}
+			
+			if(serial){
+				for (Integer index : curGraph.getVertices()) {
+					Vertex v = curGraph.getVertex(index);
+
+					if (v.getEdges().isEmpty()){
+						return false;
+					}
+				}
+			}
+			
 			return true;
 		} else {
 			return false;
