@@ -34,14 +34,14 @@ public class Modal {
 		if (var.startsWith("~")) {
 			var = var.substring(1);
 
-			if (negValuation.containsKey(var))
-				return negValuation.get(var);
+			if (getNegValuation().containsKey(var))
+				return getNegValuation().get(var);
 			else
 				return new HashSet<>();
 		}
 
-		if (valuation.containsKey(var))
-			return valuation.get(var);
+		if (getValuation().containsKey(var))
+			return getValuation().get(var);
 		else
 			return new HashSet<>();
 	}
@@ -49,7 +49,7 @@ public class Modal {
 	public ArrayList<String> getVarsFromVertex(Integer v) {
 		ArrayList<String> vars = new ArrayList<>();
 
-		for (String var : valuation.keySet()) {
+		for (String var : getValuation().keySet()) {
 			if (getVerticesWithVar(var).contains(v))
 				vars.add(var);
 		}
@@ -60,7 +60,7 @@ public class Modal {
 	public ArrayList<String> getNegVarsFromVertex(Integer v) {
 		ArrayList<String> vars = new ArrayList<>();
 
-		for (String var : negValuation.keySet()) {
+		for (String var : getNegValuation().keySet()) {
 			if (getVerticesWithVar("~" + var).contains(v))
 				vars.add(var);
 		}
@@ -72,12 +72,20 @@ public class Modal {
 	public String printVarsFromVertex(Integer v) {
 		String vars = "";
 
-		for (String var : valuation.keySet()) {
+		for (String var : getValuation().keySet()) {
 			if (getVerticesWithVar(var).contains(v)) {
 				if (vars.equals(""))
 					vars = var;
 				else
 					vars += "," + var;
+			}
+		}
+		for (String var : getNegValuation().keySet()) {
+			if (getVerticesWithVar("~"+var).contains(v)) {
+				if (vars.equals(""))
+					vars = "~"+var;
+				else
+					vars += ",~" + var;
 			}
 		}
 
@@ -93,11 +101,11 @@ public class Modal {
 	}
 
 	public void addValuation(Map<String, HashSet<Integer>> val) {
-		valuation.putAll(val);
+		getValuation().putAll(val);
 	}
 
 	public void addNegValuation(Map<String, HashSet<Integer>> val) {
-		negValuation.putAll(val);
+		getNegValuation().putAll(val);
 	}
 
 	public boolean addVarToVertex(String var, int index) {
@@ -105,24 +113,23 @@ public class Modal {
 			return false;
 
 		if (var.startsWith("~")) {
-			var = var.substring(1);
 			
 			if (getVerticesWithVar(var).contains(index))
 				return false;
-			if (!containsVar("~"+var)) {
-				negValuation.put(var, new HashSet<Integer>());
+			if (!containsVar(var)) {
+				getNegValuation().put(var.substring(1), new HashSet<Integer>());
 			}
 
-			return negValuation.get(var).add(index);
+			return getNegValuation().get(var.substring(1)).add(index);
 		}
 
 		if (getVerticesWithVar("~" + var).contains(index))
 			return false;
 		if (!containsVar(var)) {
-			valuation.put(var, new HashSet<Integer>());
+			getValuation().put(var, new HashSet<Integer>());
 		}
 
-		return valuation.get(var).add(index);
+		return getValuation().get(var).add(index);
 	}
 
 	public boolean removeVarFromVertex(String var, int index) {
@@ -130,17 +137,17 @@ public class Modal {
 			return false;
 
 		if (var.startsWith("~")) {
-			return negValuation.get(var.substring(1)).remove(index);
+			return getNegValuation().get(var.substring(1)).remove(index);
 		}
 
-		return valuation.get(var).remove(index);
+		return getValuation().get(var).remove(index);
 	}
 
 	public boolean containsVar(String var) {
 		if (var.startsWith("~")) {
-			return negValuation.containsKey(var.substring(1));
+			return getNegValuation().containsKey(var.substring(1));
 		}
-		return valuation.containsKey(var);
+		return getValuation().containsKey(var);
 	}
 
 	public boolean mlMc(Node root) {
