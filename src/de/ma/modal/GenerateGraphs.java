@@ -58,7 +58,7 @@ public class GenerateGraphs {
 		frame.add(p);
 		frame.setSize(300, 100);
 		frame.setLocationRelativeTo(null);
-//		frame.setVisible(true);
+		frame.setVisible(true);
 
 		try {
 			generateTrees();
