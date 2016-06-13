@@ -169,8 +169,8 @@ public class Modal {
 	}
 
 	public boolean isCompatible(Modal m) {
-		if (!this.getGraph().isomorphic(m.getGraph()))
-			return false;
+//		if (!this.getGraph().isomorphic(m.getGraph()))
+//			return false;
 
 		for (int index : graph.getVertices()) {
 			for (String var : this.getVarsFromVertex(index)) {

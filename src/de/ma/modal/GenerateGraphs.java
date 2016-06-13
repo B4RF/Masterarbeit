@@ -61,7 +61,8 @@ public class GenerateGraphs {
 		frame.setVisible(true);
 
 		try {
-			generateTrees();
+//			generateTrees();
+			generateGraphs();
 
 			Process directg = Runtime.getRuntime().exec("directg.exe -oT");
 
@@ -97,19 +98,19 @@ public class GenerateGraphs {
 						} else {
 							
 							// check for undirected graphs
-							String gentree = genReader.readLine();
-							if (gentree != null) {
+							String graph = genReader.readLine();
+							if (graph != null) {
 								// System.out.println("generate");
-								if (!gentree.equals(lastLine)) {
+								if (!graph.equals(lastLine)) {
 									Process directg = Runtime.getRuntime().exec("directg.exe -oT");
 									BufferedWriter dirWriter = new BufferedWriter(
 											new OutputStreamWriter(directg.getOutputStream()));
 									dirReader = new BufferedReader(new InputStreamReader(directg.getInputStream()));
-									dirWriter.write(gentree + "\n");
+									dirWriter.write(graph + "\n");
 									dirWriter.close();
 								}
 
-								lastLine = gentree;
+								lastLine = graph;
 							} else {
 								nextTree = true;
 							}
@@ -117,7 +118,8 @@ public class GenerateGraphs {
 					}
 				}
 				nextTree = false;
-			} while (generateTrees()); // generate graphs with one more vertex
+			} while (generateGraphs()); // generate graphs with one more vertex
+			//} while (generateTrees());
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -183,16 +185,40 @@ public class GenerateGraphs {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private boolean generateTrees() {
 		try {
+			// sum of 1^2 to n^2
+			// n(n+1)(2n+1)/6
+			int sum = curVertices*(curVertices+1)*(2*curVertices+1)/6;
 			curVertices++;
-			progress.setValue(progress.getValue()+curVertices);
+			progress.setValue(sum);
 			if (curVertices <= maxVertices) {
 				// System.out.println("gentreeg.exe -D" + maxDegree + " -Z0:" +
 				// diameter + " " + curVertices);
 				Process gentreeg = Runtime.getRuntime()
 						.exec("gentreeg.exe -D" + maxDegree + " -Z0:" + diameter + " " + curVertices);
 				genReader = new BufferedReader(new InputStreamReader(gentreeg.getInputStream()));
+
+				curInitVertex = 0;
+				preDecode = true;
+				return true;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		frame.dispose();
+		return false;
+	}
+	
+	private boolean generateGraphs() {
+		try {
+			curVertices++;
+			progress.setValue(progress.getValue()+curVertices);
+			if (curVertices <= maxVertices) {
+				Process geng = Runtime.getRuntime()
+						.exec("geng.exe -D" + maxDegree + " " + curVertices);
+				genReader = new BufferedReader(new InputStreamReader(geng.getInputStream()));
 
 				curInitVertex = 0;
 				preDecode = true;
