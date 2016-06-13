@@ -41,6 +41,13 @@ public class LabelGraph {
 			for (Integer index : vertex.getEdges()) {
 				ArrayList<Modal> currentModals = labelNNFGraph(modal, modal.getGraph().getVertex(index), box.getNode());
 				
+				// one edge doesn't satisfy so box doesn't as well
+				if(currentModals.isEmpty()){
+					combinedModals = new ArrayList<>();
+					break;
+				}
+				
+				//TODO check for isomorphic subgraphs
 				if(combinedModals.isEmpty())
 					combinedModals = currentModals;
 				else
@@ -52,22 +59,23 @@ public class LabelGraph {
 		case '$':
 			Diamond diam = (Diamond) root;
 			
-			ArrayList<Vertex> preEdges = new ArrayList<>();
+//			ArrayList<Vertex> preEdges = new ArrayList<>();
 			for (Integer index : vertex.getEdges()) {
 				Vertex edge = modal.getGraph().getVertex(index);
-				boolean isomorph = false;
+				//TODO isomorphic for all possible graphs
+//				boolean isomorph = false;
+//				
+//				for (Vertex v : preEdges) {
+//					if(edge.isomorphic(v)){
+//						isomorph = true;
+//						break;
+//					}
+//				}
 				
-				for (Vertex v : preEdges) {
-					if(edge.isomorphic(v)){
-						isomorph = true;
-						break;
-					}
-				}
-				
-				if(!isomorph)
+//				if(!isomorph){
 					labeled.addAll(labelNNFGraph(modal, edge, diam.getNode()));
-				
-				preEdges.add(edge);
+//					preEdges.add(edge);
+//				}
 			}
 			break;
 		case Tag.BICONDITION:

@@ -80,14 +80,6 @@ public class Modal {
 					vars += "," + var;
 			}
 		}
-		for (String var : getNegValuation().keySet()) {
-			if (getVerticesWithVar("~"+var).contains(v)) {
-				if (vars.equals(""))
-					vars = "~"+var;
-				else
-					vars += ",~" + var;
-			}
-		}
 
 		return vars;
 	}

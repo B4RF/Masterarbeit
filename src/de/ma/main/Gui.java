@@ -107,27 +107,34 @@ public class Gui extends JFrame {
 				enumModals.clear();
 				enumFrame.dispose();
 
-				String input = formula.getText();
+				final String input = formula.getText();
 
 				if (input.equals(""))
 					JOptionPane.showMessageDialog(new JFrame(), "Please insert a formula first.");
 				else {
-					Node root = parser.formula(input);
+					
+					Thread t = new Thread(new Runnable() {
+						public void run() {
+							Node root = parser.formula(input);
 
-					updateNNF(root);
+							updateNNF(root);
 
-					// TODO a|~a need to fix
-					updateSatisfiable(root);
+							//TODO a|~a need to fix
+							updateSatisfiable(root);
 
-					generateModals(root);
+							generateModals(root);
 
-					if (minimal.isSelected())
-						removeNonMinimal(root);
+							if (minimal.isSelected())
+								removeNonMinimal(root);
 
-					if (enumModals.isEmpty())
-						JOptionPane.showMessageDialog(new JFrame(), "No satisfying modal generated.");
-					else
-						showModallist();
+							if (enumModals.isEmpty())
+								JOptionPane.showMessageDialog(new JFrame(), "No satisfying modal generated.");
+							else
+								showModallist();
+						}
+					});
+					
+					t.start();
 				}
 			}
 		});

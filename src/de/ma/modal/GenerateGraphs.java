@@ -7,6 +7,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+
 public class GenerateGraphs {
 	int maxDegree;
 	int diameter;
@@ -24,6 +29,9 @@ public class GenerateGraphs {
 	Graph curGraph;
 
 	String lastLine = ""; // remove duplicates at 2 vertices
+	
+	JFrame frame;
+	JProgressBar progress;
 
 	public GenerateGraphs(int maxD, int diam, boolean ref, boolean trans, boolean ser) {
 		maxDegree = maxD + 1; // because of incoming edges
@@ -38,6 +46,19 @@ public class GenerateGraphs {
 		for (int i = 0; i <= diameter / 2; i++) {
 			maxVertices += Math.pow(maxDegree - 1, i);
 		}
+		
+		frame = new JFrame("In progress...");
+		JLabel l = new JLabel("generating possible graphs");
+		JPanel p = new JPanel();
+		int sum = maxVertices*(maxVertices+1)/2;
+		progress = new JProgressBar(0, sum);
+		
+		p.add(progress);
+		frame.add(l);
+		frame.add(p);
+		frame.setSize(300, 100);
+		frame.setLocationRelativeTo(null);
+//		frame.setVisible(true);
 
 		try {
 			generateTrees();
@@ -165,6 +186,7 @@ public class GenerateGraphs {
 	private boolean generateTrees() {
 		try {
 			curVertices++;
+			progress.setValue(progress.getValue()+curVertices);
 			if (curVertices <= maxVertices) {
 				// System.out.println("gentreeg.exe -D" + maxDegree + " -Z0:" +
 				// diameter + " " + curVertices);
@@ -179,7 +201,7 @@ public class GenerateGraphs {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		frame.dispose();
 		return false;
 	}
 
