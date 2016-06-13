@@ -50,7 +50,8 @@ public class GenerateGraphs {
 		frame = new JFrame("In progress...");
 		JLabel l = new JLabel("generating possible graphs");
 		JPanel p = new JPanel();
-		int sum = maxVertices*(maxVertices+1)/2;
+		// sum of 1^2 to n^2
+		int sum = maxVertices*(maxVertices+1)*(2*maxVertices+1)/6;
 		progress = new JProgressBar(0, sum);
 		
 		p.add(progress);
@@ -191,8 +192,8 @@ public class GenerateGraphs {
 			// sum of 1^2 to n^2
 			// n(n+1)(2n+1)/6
 			int sum = curVertices*(curVertices+1)*(2*curVertices+1)/6;
-			curVertices++;
 			progress.setValue(sum);
+			curVertices++;
 			if (curVertices <= maxVertices) {
 				// System.out.println("gentreeg.exe -D" + maxDegree + " -Z0:" +
 				// diameter + " " + curVertices);
@@ -213,8 +214,11 @@ public class GenerateGraphs {
 	
 	private boolean generateGraphs() {
 		try {
+			// sum of 1^2 to n^2
+			// n(n+1)(2n+1)/6
+			int sum = curVertices*(curVertices+1)*(2*curVertices+1)/6;
+			progress.setValue(sum);
 			curVertices++;
-			progress.setValue(progress.getValue()+curVertices);
 			if (curVertices <= maxVertices) {
 				Process geng = Runtime.getRuntime()
 						.exec("geng.exe -D" + maxDegree + " " + curVertices);
