@@ -1,5 +1,6 @@
 package de.ma.main;
 
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,14 +40,12 @@ public class Gui extends JFrame {
 	static JPanel formulaPanel = new JPanel();
 	static JPanel conditionPanel1 = new JPanel();
 	static JPanel conditionPanel2 = new JPanel();
-	static JPanel nnfPanel = new JPanel();
 	static JTextField formula = new JTextField();
 	static JCheckBox minimal = new JCheckBox("minimal");
 	static JCheckBox reflexive = new JCheckBox("reflexive");
 	static JCheckBox transitive = new JCheckBox("transitive");
 	static JCheckBox serial = new JCheckBox("serial");
 	static JButton enumerate = new JButton("Enumerate");
-	static JLabel nnf = new JLabel("-");
 	static JLabel satisfiable = new JLabel("-");
 
 	static Lexer lex = new Lexer();
@@ -54,21 +53,19 @@ public class Gui extends JFrame {
 
 	// Elemente der Auflistung
 	static ArrayList<Modal> enumModals = new ArrayList<Modal>();
-	static JFrame enumFrame = new JFrame();
 	int modalIndex;
 
 	public Gui() {
 		setTitle("Modallogic Enumerator");
 		setResizable(false);
 
-		mainPanel.setLayout(new GridLayout(5, 0));
+		mainPanel.setLayout(new GridLayout(4, 0));
 		add(mainPanel);
 
 		mainPanel.add(formulaPanel);
 		mainPanel.add(conditionPanel1);
 		mainPanel.add(conditionPanel2);
 		mainPanel.add(enumerate);
-		mainPanel.add(nnfPanel);
 		// mainPanel.add(satPanel);
 
 		formulaPanel.setLayout(new GridLayout(1, 2));
@@ -82,11 +79,6 @@ public class Gui extends JFrame {
 		conditionPanel2.setLayout(new GridLayout(1, 2));
 		conditionPanel2.add(transitive);
 		conditionPanel2.add(serial);
-
-		nnfPanel.setLayout(new GridLayout(1, 2));
-		nnfPanel.add(new JLabel(" Formula in NNF: "));
-		nnfPanel.add(nnf);
-		nnf.setHorizontalAlignment(SwingConstants.CENTER);
 
 		// TODO remove?
 		// satPanel.setLayout(new GridLayout(1, 2));
@@ -102,10 +94,8 @@ public class Gui extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				nnf.setText("-");
 				satisfiable.setText("-");
 				enumModals.clear();
-				enumFrame.dispose();
 
 				final String input = formula.getText();
 
@@ -117,8 +107,6 @@ public class Gui extends JFrame {
 						public void run() {
 							Node root = parser.formula(input);
 
-							updateNNF(root);
-
 							//TODO a|~a need to fix
 							updateSatisfiable(root);
 
@@ -129,8 +117,10 @@ public class Gui extends JFrame {
 
 							if (enumModals.isEmpty())
 								JOptionPane.showMessageDialog(new JFrame(), "No satisfying modal generated.");
-							else
-								showModallist();
+							else{
+								String formula = computeNNF(root);
+								showModallist(formula);
+							}
 						}
 					});
 					
@@ -162,8 +152,6 @@ public class Gui extends JFrame {
 		while (currentGraph != null) {
 			Modal modal = new Modal(currentGraph);
 
-			// enumModals.add(modal);
-
 			ArrayList<Modal> labeled = labelG.labelGraph(modal, root);
 
 			for (Modal m : labeled) {
@@ -178,7 +166,7 @@ public class Gui extends JFrame {
 		}
 	}
 
-	private void updateNNF(Node root) {
+	private String computeNNF(Node root) {
 		ReduceTreeWalker rtw = new ReduceTreeWalker();
 		root = rtw.walk(root, null);
 		NNFTreeWalker ntw = new NNFTreeWalker();
@@ -196,7 +184,8 @@ public class Gui extends JFrame {
 		formula = formula.replace("+", "\u2295");
 		formula = formula.replace("$", "\u25CA");
 		formula = formula.replace("#", "\u25A1");
-		nnf.setText(formula);
+		
+		return formula;
 	}
 
 	protected void updateSatisfiable(Node root) {
@@ -227,11 +216,11 @@ public class Gui extends JFrame {
 		}
 	}
 
-	private void showModallist() {
-		enumFrame = new JFrame();
-		JPanel enumPanel = new JPanel();
+	private void showModallist(String formula) {
+		final JFrame enumFrame = new JFrame();
 		final JList<String> enumList = new JList<>();
 		final JLabel imageLabel = new JLabel();
+		final JLabel formulaLabel = new JLabel(formula, SwingConstants.CENTER);
 
 		enumList.setModel(new AbstractListModel<String>() {
 			private static final long serialVersionUID = 1L;
@@ -262,18 +251,12 @@ public class Gui extends JFrame {
 			}
 		});
 
-		imageLabel.setSize(400, 300);
-
-		if (enumModals.size() > 8)
-			enumPanel.add(new JScrollPane(enumList));
-		else
-			enumPanel.add(enumList);
-
-		enumPanel.add(imageLabel);
+		enumFrame.getContentPane().add(formulaLabel, BorderLayout.PAGE_START);
+		enumFrame.getContentPane().add(new JScrollPane(enumList), BorderLayout.LINE_START);
+		enumFrame.getContentPane().add(imageLabel, BorderLayout.CENTER);
+		
 		enumModals.get(0).draw(imageLabel);
-
-		enumFrame.add(enumPanel);
-
+		
 		enumFrame.setTitle("Satisfying Models");
 		enumFrame.pack();
 		enumFrame.setLocationRelativeTo(null);

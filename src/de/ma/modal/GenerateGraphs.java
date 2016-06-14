@@ -103,7 +103,7 @@ public class GenerateGraphs {
 							if (graph != null) {
 								// System.out.println("generate");
 								if (!graph.equals(lastLine)) {
-									Process directg = Runtime.getRuntime().exec("directg.exe -oT");
+									Process directg = Runtime.getRuntime().exec("directg.exe -T");
 									BufferedWriter dirWriter = new BufferedWriter(
 											new OutputStreamWriter(directg.getOutputStream()));
 									dirReader = new BufferedReader(new InputStreamReader(directg.getInputStream()));
