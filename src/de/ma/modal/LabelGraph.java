@@ -39,15 +39,17 @@ public class LabelGraph {
 
 			ArrayList<Modal> combinedModals = new ArrayList<>();
 			for (Integer index : vertex.getEdges()) {
-				ArrayList<Modal> currentModals = labelNNFGraph(modal, modal.getGraph().getVertex(index), box.getNode());
+				Vertex edge = modal.getGraph().getVertex(index);
+				ArrayList<Modal> currentModals = labelNNFGraph(modal, edge, box.getNode());
 				
-				// one edge doesn't satisfy so box doesn't as well
+				// if one edge doesn't satisfy, the box operator doesn't as well
 				if(currentModals.isEmpty()){
-					combinedModals = new ArrayList<>();
+					combinedModals.clear();
 					break;
 				}
 				
 				//TODO check for isomorphic subgraphs
+				
 				if(combinedModals.isEmpty())
 					combinedModals = currentModals;
 				else
@@ -89,7 +91,7 @@ public class LabelGraph {
 //			break;
 		case '+':
 			// (~a&b)|(a&~b)
-			System.out.println("Fail");
+			System.out.println("Fail: Wrong operator while labelling.");
 			break;
 		case '|':
 			Or or = (Or) root;
@@ -162,6 +164,7 @@ public class LabelGraph {
 				}
 			}
 		}
+		
 		return combinedModals;
 	}
 }

@@ -81,6 +81,15 @@ public class Modal {
 			}
 		}
 
+		for (String var : getNegValuation().keySet()) {
+			if (getVerticesWithVar("~" + var).contains(v)) {
+				if (vars.equals(""))
+					vars = "\u00AC"+var;
+				else
+					vars += ",\u00AC" + var;
+			}
+		}
+
 		return vars;
 	}
 
@@ -164,6 +173,7 @@ public class Modal {
 	public Modal clone() {
 		Modal m = new Modal(getGraph().clone());
 		m.addValuation(getValuation());
+		m.addNegValuation(getNegValuation());
 
 		return m;
 	}
