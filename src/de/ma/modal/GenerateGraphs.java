@@ -22,6 +22,7 @@ public class GenerateGraphs {
 	boolean reflexive;
 	boolean transitive;
 	boolean serial;
+	boolean partReflexive;
 	BufferedReader genReader;
 	BufferedReader dirReader;
 
@@ -33,15 +34,16 @@ public class GenerateGraphs {
 	JFrame frame;
 	JProgressBar progress;
 
-	public GenerateGraphs(int maxD, int diam, boolean ref, boolean trans, boolean ser) {
-		maxDegree = maxD + 1; // because of incoming edges
-		diameter = diam;
-		reflexive = ref;
-		transitive = trans;
-		serial = ser;
-		curVertices = 0;
+	public GenerateGraphs(int maxD, int diam, boolean ref, boolean trans, boolean ser, boolean partRef) {
+		this.maxDegree = maxD + 1; // because of incoming edges
+		this.diameter = diam;
+		this.reflexive = ref;
+		this.transitive = trans;
+		this.serial = ser;
+		this.partReflexive = partRef;
+		this.curVertices = 0;
 
-		maxVertices = 0;
+		this.maxVertices = 0;
 		// number of vertices for full graph
 		for (int i = 0; i <= diameter / 2; i++) {
 			maxVertices += Math.pow(maxDegree - 1, i);
@@ -120,8 +122,7 @@ public class GenerateGraphs {
 				}
 				nextTree = false;
 			} while (generateGraphs()); // generate graphs with one more vertex
-			//} while (generateTrees());
-
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -140,16 +141,6 @@ public class GenerateGraphs {
 		// remove graphs which have unreachable vertices
 		if ((curGraph.getInitVertex().getEdges().size() != maxDegree) && (curGraph.getDepth() <= diameter / 2)
 				&& curGraph.allVertReach()) {
-			
-			if(reflexive){
-				for (Integer index : curGraph.getVertices()) {
-					Vertex v = curGraph.getVertex(index);
-
-					if (!v.hasEdge(v.getIndex())){
-						return false;
-					}
-				}
-			}
 			
 			//TODO vielleicht transitive hülle nutzen
 			if(transitive){
@@ -184,32 +175,6 @@ public class GenerateGraphs {
 		} else {
 			return false;
 		}
-	}
-
-	@SuppressWarnings("unused")
-	private boolean generateTrees() {
-		try {
-			// sum of 1^2 to n^2
-			// n(n+1)(2n+1)/6
-			int sum = curVertices*(curVertices+1)*(2*curVertices+1)/6;
-			progress.setValue(sum);
-			curVertices++;
-			if (curVertices <= maxVertices) {
-				// System.out.println("gentreeg.exe -D" + maxDegree + " -Z0:" +
-				// diameter + " " + curVertices);
-				Process gentreeg = Runtime.getRuntime()
-						.exec("gentreeg.exe -D" + maxDegree + " -Z0:" + diameter + " " + curVertices);
-				genReader = new BufferedReader(new InputStreamReader(gentreeg.getInputStream()));
-
-				curInitVertex = 0;
-				preDecode = true;
-				return true;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		frame.dispose();
-		return false;
 	}
 	
 	private boolean generateGraphs() {
@@ -251,6 +216,14 @@ public class GenerateGraphs {
 
 		for (int i = 2; i < output.get(1) * 2 + 2; i += 2) {
 			graph.addEdge(output.get(i), output.get(i + 1));
+		}
+		
+		if(reflexive){
+			for (Integer index : graph.getVertices()) {
+				graph.addEdge(index, index);
+			}
+		}else if(partReflexive){
+			//TODO calculate orbits, expand class graph
 		}
 
 		curGraph = graph;

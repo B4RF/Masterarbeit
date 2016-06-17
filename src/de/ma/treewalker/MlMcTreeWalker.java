@@ -17,7 +17,7 @@ import de.ma.ast.Xor;
 import de.ma.lexer.Word;
 import de.ma.modal.Modal;
 
-public class MlSatTreeWalker extends TreeWalker<HashSet<Integer>, Modal> {
+public class MlMcTreeWalker extends TreeWalker<HashSet<Integer>, Modal> {
 
 	@Override
 	public HashSet<Integer> walkBiconditionalNode(Biconditional node, Modal arg) {

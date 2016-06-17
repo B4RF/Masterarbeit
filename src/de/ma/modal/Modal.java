@@ -9,7 +9,7 @@ import java.util.Set;
 import javax.swing.JLabel;
 
 import de.ma.ast.Node;
-import de.ma.treewalker.MlSatTreeWalker;
+import de.ma.treewalker.MlMcTreeWalker;
 
 public class Modal {
 	private final Graph graph;
@@ -152,8 +152,8 @@ public class Modal {
 	}
 
 	public boolean mlMc(Node root) {
-		MlSatTreeWalker mstw = new MlSatTreeWalker();
-		Set<Integer> satVertices = mstw.walk(root, this);
+		MlMcTreeWalker mmtw = new MlMcTreeWalker();
+		Set<Integer> satVertices = mmtw.walk(root, this);
 
 		if (graph.getInitVertex() == null) {
 			if (satVertices.isEmpty())

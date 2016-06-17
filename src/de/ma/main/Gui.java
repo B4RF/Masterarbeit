@@ -34,10 +34,11 @@ public class Gui extends JFrame {
 	static JPanel conditionPanel1 = new JPanel();
 	static JPanel conditionPanel2 = new JPanel();
 	static JTextField formula = new JTextField();
-	static JCheckBox minimal = new JCheckBox("minimal");
+	static JCheckBox minimal = new JCheckBox("minimal", true);
 	static JCheckBox reflexive = new JCheckBox("reflexive");
 	static JCheckBox transitive = new JCheckBox("transitive");
 	static JCheckBox serial = new JCheckBox("serial");
+	static JCheckBox partReflexive = new JCheckBox("generate partially reflexive graphs");
 	static JButton enumerate = new JButton("Enumerate");
 	
 	static Lexer lex = new Lexer();
@@ -47,12 +48,13 @@ public class Gui extends JFrame {
 		setTitle("Modallogic Enumerator");
 		setResizable(false);
 
-		mainPanel.setLayout(new GridLayout(4, 0));
+		mainPanel.setLayout(new GridLayout(5, 0));
 		add(mainPanel);
 
 		mainPanel.add(formulaPanel);
 		mainPanel.add(conditionPanel1);
 		mainPanel.add(conditionPanel2);
+		mainPanel.add(partReflexive);
 		mainPanel.add(enumerate);
 
 		formulaPanel.setLayout(new GridLayout(1, 2));
@@ -87,9 +89,6 @@ public class Gui extends JFrame {
 
 							ArrayList<Modal> enumModals = generateModals(root);
 
-							if (minimal.isSelected())
-								removeNonMinimal(enumModals, root);
-
 							if (enumModals.isEmpty())
 								JOptionPane.showMessageDialog(new JFrame(), "No satisfying modal generated.");
 							else{
@@ -98,6 +97,24 @@ public class Gui extends JFrame {
 						}
 					}).start();
 				}
+			}
+		});
+		
+		reflexive.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(reflexive.isSelected())
+					partReflexive.setSelected(false);;
+			}
+		});
+		
+		partReflexive.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(partReflexive.isSelected())
+					reflexive.setSelected(false);
 			}
 		});
 	}
@@ -113,7 +130,7 @@ public class Gui extends JFrame {
 		int diameter = root.getModalDepth() * 2;
 
 		GenerateGraphs genG = new GenerateGraphs(maxDegree, diameter, reflexive.isSelected(), transitive.isSelected(),
-				serial.isSelected());
+				serial.isSelected(), partReflexive.isSelected());
 		LabelGraph labelG = new LabelGraph();
 		Graph currentGraph = genG.nextGraph();
 
@@ -122,6 +139,9 @@ public class Gui extends JFrame {
 
 			ArrayList<Modal> labeled = labelG.labelGraph(modal, root);
 
+			if (minimal.isSelected())
+				removeNonMinimal(labeled, root);
+			
 			for (Modal m : labeled) {
 				enumModals.add(m);
 
