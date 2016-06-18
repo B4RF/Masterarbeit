@@ -1,12 +1,14 @@
 package de.ma.main;
 
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -29,11 +31,9 @@ import de.ma.parser.Parser;
 public class Gui extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
-	static JPanel mainPanel = new JPanel();
-	static JPanel formulaPanel = new JPanel();
-	static JPanel conditionPanel1 = new JPanel();
-	static JPanel conditionPanel2 = new JPanel();
+	static JPanel mainPanel = new JPanel(new GridBagLayout());
 	static JTextField formula = new JTextField();
+	static JPanel optionPanel = new JPanel(new GridBagLayout());
 	static JCheckBox minimal = new JCheckBox("minimal", true);
 	static JCheckBox reflexive = new JCheckBox("reflexive");
 	static JCheckBox transitive = new JCheckBox("transitive");
@@ -47,28 +47,81 @@ public class Gui extends JFrame {
 	public Gui() {
 		setTitle("Modallogic Enumerator");
 		setResizable(false);
-
-		mainPanel.setLayout(new GridLayout(5, 0));
 		add(mainPanel);
+		
+		//TODO change font
+//		enumerate.setFont(enumerate.getFont().deriveFont(30F));
+		GridBagConstraints c = new GridBagConstraints();
+		
+		JLabel text = new JLabel("Insert modallogic formula:");
+		text.setHorizontalAlignment(SwingConstants.CENTER);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.ipadx = 10;
+		c.ipady = 5;
+		c.weightx = 0.5;
+		mainPanel.add(text, c);
 
-		mainPanel.add(formulaPanel);
-		mainPanel.add(conditionPanel1);
-		mainPanel.add(conditionPanel2);
-		mainPanel.add(partReflexive);
-		mainPanel.add(enumerate);
-
-		formulaPanel.setLayout(new GridLayout(1, 2));
-		formulaPanel.add(new JLabel(" Insert modallogic formula:  "));
-		formulaPanel.add(formula);
 		formula.setHorizontalAlignment(SwingConstants.CENTER);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = 0;
+		c.gridwidth = 1;
+		c.ipadx = 200;
+		c.ipady = 5;
+		mainPanel.add(formula, c);
 
-		conditionPanel1.setLayout(new GridLayout(1, 2));
-		conditionPanel1.add(minimal);
-		conditionPanel1.add(reflexive);
-		conditionPanel2.setLayout(new GridLayout(1, 2));
-		conditionPanel2.add(transitive);
-		conditionPanel2.add(serial);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 2;
+		c.ipadx = 0;
+		c.ipady = 0;
+		mainPanel.add(optionPanel, c);
+		
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 2;
+		c.ipady = 5;
+		mainPanel.add(enumerate, c);
 
+
+		optionPanel.setBorder(BorderFactory.createTitledBorder("options"));
+		c = new GridBagConstraints();
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 0.5;
+		optionPanel.add(minimal, c);
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = 0;
+		c.weightx = 0.5;
+		optionPanel.add(reflexive, c);
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 1;
+		c.weightx = 0.5;
+		optionPanel.add(transitive, c);
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = 1;
+		c.weightx = 0.5;
+		optionPanel.add(serial, c);
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 2;
+		c.weightx = 1;
+		c.gridwidth = 2;
+		optionPanel.add(partReflexive, c);
+		
 		this.pack();
 		setLocationRelativeTo(null);
 		setVisible(true);
