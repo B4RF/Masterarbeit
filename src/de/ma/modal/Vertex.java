@@ -56,38 +56,4 @@ public class Vertex {
 		
 		return depth;
 	}
-	
-	public boolean isomorphic(Vertex v) {
-		if(this.getEdges().size() != v.getEdges().size())
-			return false;
-		
-		//TODO variablen vergleichen $a&$$b
-		
-		if(this.getEdges().size() == 0)
-			return true;
-		
-		ArrayList<Integer> edges2 = new ArrayList<>();
-		edges2.addAll(v.getEdges());
-		boolean matched;
-		
-		for (Integer index1 : this.getEdges()) {
-			matched = false;
-			Vertex e1 = this.getGraph().getVertex(index1);
-			
-			for (Integer index2 : edges2) {
-				Vertex e2 = v.getGraph().getVertex(index2);
-				
-				if(e1.isomorphic(e2)){
-					edges2.remove(index2);
-					matched = true;
-					break;
-				}
-			}
-			
-			if(!matched)
-				return false;
-		}
-		
-		return true;
-	}
 }

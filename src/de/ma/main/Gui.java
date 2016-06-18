@@ -4,6 +4,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,7 +32,7 @@ import de.ma.parser.Parser;
 
 public class Gui extends JFrame {
 	private static final long serialVersionUID = 1L;
-	
+
 	static JPanel mainPanel = new JPanel(new GridBagLayout());
 	static JTextField formula = new JTextField();
 	static JPanel optionPanel = new JPanel(new GridBagLayout());
@@ -39,20 +41,23 @@ public class Gui extends JFrame {
 	static JCheckBox transitive = new JCheckBox("transitive");
 	static JCheckBox serial = new JCheckBox("serial");
 	static JCheckBox partReflexive = new JCheckBox("generate partially reflexive graphs");
+	static JCheckBox orbits = new JCheckBox("use orbits");
 	static JButton enumerate = new JButton("Enumerate");
-	
+
 	static Lexer lex = new Lexer();
 	static Parser parser = new Parser(lex);
+
+	static String input;
 
 	public Gui() {
 		setTitle("Modallogic Enumerator");
 		setResizable(false);
 		add(mainPanel);
-		
-		//TODO change font
-//		enumerate.setFont(enumerate.getFont().deriveFont(30F));
+
+		// TODO change font
+		// enumerate.setFont(enumerate.getFont().deriveFont(30F));
 		GridBagConstraints c = new GridBagConstraints();
-		
+
 		JLabel text = new JLabel("Insert modallogic formula:");
 		text.setHorizontalAlignment(SwingConstants.CENTER);
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -79,7 +84,7 @@ public class Gui extends JFrame {
 		c.ipadx = 0;
 		c.ipady = 0;
 		mainPanel.add(optionPanel, c);
-		
+
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 2;
@@ -87,33 +92,38 @@ public class Gui extends JFrame {
 		c.ipady = 5;
 		mainPanel.add(enumerate, c);
 
-
 		optionPanel.setBorder(BorderFactory.createTitledBorder("options"));
 		c = new GridBagConstraints();
 
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 0;
-		c.weightx = 0.5;
+		c.weightx = 0.33;
 		optionPanel.add(minimal, c);
 
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 1;
 		c.gridy = 0;
-		c.weightx = 0.5;
-		optionPanel.add(reflexive, c);
+		c.weightx = 0.33;
+		optionPanel.add(serial, c);
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 2;
+		c.gridy = 0;
+		c.weightx = 0.33;
+		optionPanel.add(transitive, c);
 
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 1;
 		c.weightx = 0.5;
-		optionPanel.add(transitive, c);
+		optionPanel.add(reflexive, c);
 
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 1;
 		c.gridy = 1;
 		c.weightx = 0.5;
-		optionPanel.add(serial, c);
+		optionPanel.add(orbits, c);
 
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
@@ -121,7 +131,7 @@ public class Gui extends JFrame {
 		c.weightx = 1;
 		c.gridwidth = 2;
 		optionPanel.add(partReflexive, c);
-		
+
 		this.pack();
 		setLocationRelativeTo(null);
 		setVisible(true);
@@ -130,12 +140,12 @@ public class Gui extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				final String input = formula.getText();
+				input = formula.getText();
 
 				if (input.equals(""))
 					JOptionPane.showMessageDialog(new JFrame(), "Please insert a formula first.");
 				else {
-					
+
 					new Thread(new Runnable() {
 						public void run() {
 							Node root = parser.formula(input);
@@ -144,7 +154,7 @@ public class Gui extends JFrame {
 
 							if (enumModals.isEmpty())
 								JOptionPane.showMessageDialog(new JFrame(), "No satisfying modal generated.");
-							else{
+							else {
 								new SatisfyingModals(enumModals, root);
 							}
 						}
@@ -152,24 +162,29 @@ public class Gui extends JFrame {
 				}
 			}
 		});
-		
+
 		reflexive.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(reflexive.isSelected())
-					partReflexive.setSelected(false);;
+				if (reflexive.isSelected())
+					partReflexive.setSelected(false);
+			}
+		});
+
+		partReflexive.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (partReflexive.isSelected()){
+					reflexive.setSelected(false);
+					orbits.setSelected(true);
+				}
 			}
 		});
 		
-		partReflexive.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(partReflexive.isSelected())
-					reflexive.setSelected(false);
-			}
-		});
+		partReflexive.setToolTipText("Needs orbits for computation.");
+		orbits.setToolTipText("Removes duplicates but is time expensive.");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -181,9 +196,15 @@ public class Gui extends JFrame {
 		ArrayList<Modal> enumModals = new ArrayList<Modal>();
 		int maxDegree = root.getMaxDegree();
 		int diameter = root.getModalDepth() * 2;
+		int maxVertices = 0;
 
-		GenerateGraphs genG = new GenerateGraphs(maxDegree, diameter, reflexive.isSelected(), transitive.isSelected(),
-				serial.isSelected(), partReflexive.isSelected());
+		if (minimal.isSelected()) {
+			// maximal vertices for minimal graph is equals number of diamonds plus one
+			maxVertices = input.length() - input.replace("$", "").length() + 1;
+		}
+
+		GenerateGraphs genG = new GenerateGraphs(maxDegree, diameter, maxVertices, reflexive.isSelected(),
+				transitive.isSelected(), serial.isSelected(), partReflexive.isSelected(), orbits.isSelected());
 		LabelGraph labelG = new LabelGraph();
 		Graph currentGraph = genG.nextGraph();
 
@@ -194,18 +215,17 @@ public class Gui extends JFrame {
 
 			if (minimal.isSelected())
 				removeNonMinimal(labeled, root);
-			
+
 			for (Modal m : labeled) {
 				enumModals.add(m);
 
-				// TODO remove/nur fuer tests
 				if (!m.mlMc(root))
 					System.out.println("Error: Failed to ModalCheck a generated Modal.");
 			}
 
 			currentGraph = genG.nextGraph();
 		}
-		
+
 		return enumModals;
 	}
 

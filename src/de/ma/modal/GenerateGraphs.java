@@ -1,5 +1,6 @@
 package de.ma.modal;
 
+import java.awt.GridLayout;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
 
 public class GenerateGraphs {
 	int maxDegree;
@@ -23,6 +25,7 @@ public class GenerateGraphs {
 	boolean transitive;
 	boolean serial;
 	boolean partReflexive;
+	boolean useOrbits;
 	BufferedReader genReader;
 	BufferedReader dirReader;
 
@@ -30,44 +33,67 @@ public class GenerateGraphs {
 	Graph curGraph;
 
 	String lastLine = ""; // remove duplicates at 2 vertices
-	
+
 	JFrame frame;
 	JProgressBar progress;
 
-	public GenerateGraphs(int maxD, int diam, boolean ref, boolean trans, boolean ser, boolean partRef) {
-		this.maxDegree = maxD + 1; // because of incoming edges
+	// TODO with o
+	String directgCmd = "directg.exe -T";
+
+	public GenerateGraphs(int maxD, int diam, int maxV, boolean ref, boolean trans, boolean ser, boolean partRef, boolean orb) {
+		this.maxDegree = maxD;
 		this.diameter = diam;
 		this.reflexive = ref;
 		this.transitive = trans;
 		this.serial = ser;
-		this.partReflexive = partRef;
+		this.useOrbits = orb;
+
+		this.maxVertices = maxV;
+		// number of vertices for full graph
+		if (maxVertices == 0) {
+			for (int i = 0; i <= diameter / 2; i++) {
+				maxVertices += Math.pow(maxDegree, i);
+			}
+		}
+
+		if (reflexive)
+			this.partReflexive = false;
+		else
+			this.partReflexive = partRef;
 		this.curVertices = 0;
 
-		this.maxVertices = 0;
-		// number of vertices for full graph
-		for (int i = 0; i <= diameter / 2; i++) {
-			maxVertices += Math.pow(maxDegree - 1, i);
+		frame = new JFrame("In progress...");
+		frame.setLayout(new GridLayout(2, 0));
+		JLabel l = new JLabel("Generating satisfying graphs.", SwingConstants.CENTER);
+		frame.add(l);
+		
+		JPanel p = new JPanel();
+		int sum = 0;
+		
+		for (int i = 1; i <= maxVertices; i++) {
+			try {
+				Process gengCount = Runtime.getRuntime().exec("geng.exe -cD" + (maxDegree+1) + " -u " + i);
+				BufferedReader reader = new BufferedReader(new InputStreamReader(gengCount.getErrorStream()));
+				
+				reader.readLine();
+				String[] output = reader.readLine().split(" ");
+				sum += Integer.parseInt(output[1]);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		
-		frame = new JFrame("In progress...");
-		JLabel l = new JLabel("generating possible graphs");
-		JPanel p = new JPanel();
-		// sum of 1^2 to n^2
-		int sum = maxVertices*(maxVertices+1)*(2*maxVertices+1)/6;
 		progress = new JProgressBar(0, sum);
-		
 		p.add(progress);
-		frame.add(l);
 		frame.add(p);
 		frame.setSize(300, 100);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 
 		try {
-//			generateTrees();
 			generateGraphs();
 
-			Process directg = Runtime.getRuntime().exec("directg.exe -oT");
+			Process directg = Runtime.getRuntime().exec(directgCmd);
 
 			dirReader = new BufferedReader(new InputStreamReader(directg.getInputStream()));
 			BufferedWriter dirWriter = new BufferedWriter(new OutputStreamWriter(directg.getOutputStream()));
@@ -83,15 +109,17 @@ public class GenerateGraphs {
 		try {
 			do {
 				while (!nextTree) {
-					
-					// check for full generated graphs with different init vertex
+
+					// check for full generated graphs with different init
+					// vertex
 					if (!preDecode && (curInitVertex < curVertices)) {
 						// System.out.println("init");
 						if (initNextGraph())
 							return curGraph;
 
 					} else {
-						
+						// TODO partially reflexive graphs
+
 						// check for directed graphs
 						String directed = dirReader.readLine();
 						if (directed != null) {
@@ -99,13 +127,14 @@ public class GenerateGraphs {
 							decode(directed);
 
 						} else {
-							
+
 							// check for undirected graphs
 							String graph = genReader.readLine();
 							if (graph != null) {
+								progress.setValue(progress.getValue()+1);
 								// System.out.println("generate");
 								if (!graph.equals(lastLine)) {
-									Process directg = Runtime.getRuntime().exec("directg.exe -T");
+									Process directg = Runtime.getRuntime().exec(directgCmd);
 									BufferedWriter dirWriter = new BufferedWriter(
 											new OutputStreamWriter(directg.getOutputStream()));
 									dirReader = new BufferedReader(new InputStreamReader(directg.getInputStream()));
@@ -122,7 +151,7 @@ public class GenerateGraphs {
 				}
 				nextTree = false;
 			} while (generateGraphs()); // generate graphs with one more vertex
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -132,61 +161,59 @@ public class GenerateGraphs {
 	}
 
 	private boolean initNextGraph() {
+		if (useOrbits && (curGraph.getOrbit(curInitVertex) != curInitVertex)) {
+			curInitVertex++;
+			return false;
+		}
 		curGraph.setInitVertex(curInitVertex);
 		curInitVertex++;
 
-		// remove graphs with maxdegree in init vertex (no incoming edge
-		// therefore one too many)
-		// remove graphs with depth higher than modal depth
+		// remove graphs with higher max degree
 		// remove graphs which have unreachable vertices
-		if ((curGraph.getInitVertex().getEdges().size() != maxDegree) && (curGraph.getDepth() <= diameter / 2)
-				&& curGraph.allVertReach()) {
-			
-			//TODO vielleicht transitive hülle nutzen
-			if(transitive){
+		// remove graphs with depth higher than modal depth
+		if ((curGraph.getMaxDegree() <= maxDegree) && curGraph.allVertReach()
+				&& (curGraph.getDepth() <= diameter / 2)) {
+
+			// TODO vielleicht transitive hülle nutzen
+			if (transitive) {
 				// uRv & vRw -> uRw
 				for (Integer u : curGraph.getVertices()) {
 					Vertex uVertex = curGraph.getVertex(u);
 
 					for (Integer v : uVertex.getEdges()) {
 						Vertex vVertex = curGraph.getVertex(v);
-						
+
 						for (Integer w : vVertex.getEdges()) {
-							
-							if(!curGraph.containsEdge(u, w)){
+
+							if (!curGraph.containsEdge(u, w)) {
 								return false;
 							}
 						}
 					}
 				}
 			}
-			
-			if(serial){
+
+			if (serial) {
 				for (Integer index : curGraph.getVertices()) {
 					Vertex v = curGraph.getVertex(index);
 
-					if (v.getEdges().isEmpty()){
+					if (v.getEdges().isEmpty()) {
 						return false;
 					}
 				}
 			}
-			
+
 			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	private boolean generateGraphs() {
 		try {
-			// sum of 1^2 to n^2
-			// n(n+1)(2n+1)/6
-			int sum = curVertices*(curVertices+1)*(2*curVertices+1)/6;
-			progress.setValue(sum);
 			curVertices++;
 			if (curVertices <= maxVertices) {
-				Process geng = Runtime.getRuntime()
-						.exec("geng.exe -D" + maxDegree + " " + curVertices);
+				Process geng = Runtime.getRuntime().exec("geng.exe -cD" + (maxDegree+1) + " " + curVertices);
 				genReader = new BufferedReader(new InputStreamReader(geng.getInputStream()));
 
 				curInitVertex = 0;
@@ -217,16 +244,88 @@ public class GenerateGraphs {
 		for (int i = 2; i < output.get(1) * 2 + 2; i += 2) {
 			graph.addEdge(output.get(i), output.get(i + 1));
 		}
-		
-		if(reflexive){
+
+		if (reflexive) {
 			for (Integer index : graph.getVertices()) {
 				graph.addEdge(index, index);
 			}
-		}else if(partReflexive){
-			//TODO calculate orbits, expand class graph
 		}
 
 		curGraph = graph;
+		if(useOrbits)
+			calculateOrbits();
 		curInitVertex = 0;
+	}
+
+	private void calculateOrbits() {
+		try {
+			Process dreadnaut = Runtime.getRuntime().exec("dreadnaut.exe");
+
+			BufferedWriter dreadWriter = new BufferedWriter(new OutputStreamWriter(dreadnaut.getOutputStream()));
+			BufferedReader dreadReader = new BufferedReader(new InputStreamReader(dreadnaut.getInputStream()));
+
+			// directed graphs as input
+			dreadWriter.write("d\n");
+
+			int n = curGraph.getVertices().size();
+			dreadWriter.write("n=" + n + " g\n");
+
+			// input edges of the current graph
+			for (int i = 0; i < n; i++) {
+				for (Integer edge : curGraph.getVertex(i).getEdges()) {
+					dreadWriter.write(edge + "\n");
+				}
+
+				if (i == n - 1)
+					dreadWriter.write(".\n");
+				else
+					dreadWriter.write(";\n");
+			}
+
+			// execute and output orbits
+			dreadWriter.write("x o\n");
+			dreadWriter.close();
+
+			String line;
+			String orbits = null;
+			while ((line = dreadReader.readLine()) != null) {
+				orbits = line;
+			}
+
+			for (String s : orbits.split(";")) {
+
+				int orbit = -1;
+				for (String t : s.split(" ")) {
+
+					if (!t.isEmpty() && !t.startsWith("(")) {
+
+						if (t.contains(":")) {
+
+							String[] range = t.split(":");
+							int start = Integer.parseInt(range[0]);
+							int end = Integer.parseInt(range[1]);
+
+							for (int index = start; index <= end; index++) {
+								if (orbit == -1) {
+									orbit = index;
+								}
+
+								curGraph.addOrbit(index, orbit);
+							}
+						} else {
+							int index = Integer.parseInt(t);
+
+							if (orbit == -1) {
+								orbit = index;
+							}
+
+							curGraph.addOrbit(index, orbit);
+						}
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
