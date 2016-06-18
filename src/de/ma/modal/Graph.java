@@ -8,7 +8,8 @@ import java.util.Stack;
 public class Graph {
 	private Integer initialVertex;
 	private final Map<Integer, Vertex> vertices = new HashMap<>();
-
+	private final Map<Integer, Integer> orbits = new HashMap<>();
+	
 	public Vertex getInitVertex() {
 		return vertices.get(initialVertex);
 	}
@@ -86,13 +87,6 @@ public class Graph {
 		return g;
 	}
 
-	public boolean isomorphic(Graph g) {
-		if (this.getInitVertex() == null || g.getInitVertex() == null)
-			return false;
-
-		return this.getInitVertex().isomorphic(g.getInitVertex());
-	}
-
 	public int getDepth() {
 		HashMap<Integer, Integer> distance = new HashMap<>();
 		Stack<Integer> s = new Stack<>();
@@ -148,5 +142,23 @@ public class Graph {
 			return true;
 
 		return false;
+	}
+	
+	public int getMaxDegree(){
+		int maxD = 0;
+		
+		for (int index : getVertices()) {
+			maxD = Math.max(maxD, getVertex(index).getEdges().size());
+		}
+		
+		return maxD;
+	}
+
+	public void addOrbit(int index, int orbit) {
+		orbits.put(index, orbit);
+	}
+	
+	public int getOrbit(int index){
+		return orbits.get(index);
 	}
 }

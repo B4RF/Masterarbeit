@@ -84,7 +84,7 @@ public class SatisfyingModals extends JFrame{
 
 		formula = formula.replace("&", "\u2227");
 		formula = formula.replace("|", "\u2228");
-		formula = formula.replace("~>", "\u2227\u00AC"); // TODO change?
+		formula = formula.replace("~>", "\u2227\u00AC"); //TODO change?
 		formula = formula.replace("~", "\u00AC");
 		formula = formula.replace("<->", "\u2194");
 		formula = formula.replace("->", "\u2192");
