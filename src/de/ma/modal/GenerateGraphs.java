@@ -86,7 +86,7 @@ public class GenerateGraphs {
 		progress = new JProgressBar(0, sum);
 		p.add(progress);
 		frame.add(p);
-		frame.setSize(300, 100);
+		frame.setSize(350, 100);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 
@@ -105,34 +105,36 @@ public class GenerateGraphs {
 
 	public Graph nextGraph() {
 		boolean nextTree = false;
+		String graph;
+		String digraph;
 
 		try {
+			// do as long as graphs with more vertices exists
 			do {
+				// do as long as no vertex needs to be added
 				while (!nextTree) {
-
-					// check for full generated graphs with different init
-					// vertex
+					
+					// check for generated digraphs with different init vertex
 					if (!preDecode && (curInitVertex < curVertices)) {
-						// System.out.println("init");
+						
 						if (initNextGraph())
 							return curGraph;
 
+					// TODO partially reflexive graphs
 					} else {
-						// TODO partially reflexive graphs
 
 						// check for directed graphs
-						String directed = dirReader.readLine();
-						if (directed != null) {
-							// System.out.println("decode");
-							decode(directed);
+						if ((digraph = dirReader.readLine()) != null) {
+
+							decode(digraph);
 
 						} else {
 
 							// check for undirected graphs
-							String graph = genReader.readLine();
-							if (graph != null) {
+							if ((graph = genReader.readLine()) != null) {
+								
 								progress.setValue(progress.getValue()+1);
-								// System.out.println("generate");
+
 								if (!graph.equals(lastLine)) {
 									Process directg = Runtime.getRuntime().exec(directgCmd);
 									BufferedWriter dirWriter = new BufferedWriter(
@@ -150,7 +152,7 @@ public class GenerateGraphs {
 					}
 				}
 				nextTree = false;
-			} while (generateGraphs()); // generate graphs with one more vertex
+			} while(generateGraphs());
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -296,7 +298,7 @@ public class GenerateGraphs {
 
 				int orbit = -1;
 				for (String t : s.split(" ")) {
-
+					
 					if (!t.isEmpty() && !t.startsWith("(")) {
 
 						if (t.contains(":")) {

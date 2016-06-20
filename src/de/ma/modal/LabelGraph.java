@@ -15,6 +15,12 @@ import de.ma.treewalker.AndOrTreeWalker;
 import de.ma.treewalker.NNFTreeWalker;
 
 public class LabelGraph {
+	private boolean useOrbits;
+
+	public LabelGraph(boolean orb){
+		this.useOrbits = orb;
+	}
+	
 	public ArrayList<Modal> labelGraph(Modal modal, Node root){
 		AndOrTreeWalker aotw = new AndOrTreeWalker();
 		root = aotw.walk(root, null);
@@ -61,23 +67,10 @@ public class LabelGraph {
 		case '$':
 			Diamond diam = (Diamond) root;
 			
-//			ArrayList<Vertex> preEdges = new ArrayList<>();
 			for (Integer index : vertex.getEdges()) {
 				Vertex edge = modal.getGraph().getVertex(index);
-				//TODO isomorphic for all possible graphs
-//				boolean isomorph = false;
-//				
-//				for (Vertex v : preEdges) {
-//					if(edge.isomorphic(v)){
-//						isomorph = true;
-//						break;
-//					}
-//				}
-				
-//				if(!isomorph){
-					labeled.addAll(labelNNFGraph(modal, edge, diam.getNode()));
-//					preEdges.add(edge);
-//				}
+
+				labeled.addAll(labelNNFGraph(modal, edge, diam.getNode()));
 			}
 			break;
 		case Tag.BICONDITION:

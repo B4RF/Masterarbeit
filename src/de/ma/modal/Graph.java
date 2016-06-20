@@ -1,5 +1,6 @@
 package de.ma.modal;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -8,7 +9,7 @@ import java.util.Stack;
 public class Graph {
 	private Integer initialVertex;
 	private final Map<Integer, Vertex> vertices = new HashMap<>();
-	private final Map<Integer, Integer> orbits = new HashMap<>();
+	private Map<Integer, Integer> orbits = new HashMap<>();
 	
 	public Vertex getInitVertex() {
 		return vertices.get(initialVertex);
@@ -81,8 +82,11 @@ public class Graph {
 				g.getVertex(index).addEdge(edge);
 			}
 		}
+		
 		if (initialVertex != null)
 			g.setInitVertex(initialVertex);
+		
+		g.setOrbits(orbits);
 
 		return g;
 	}
@@ -157,8 +161,24 @@ public class Graph {
 	public void addOrbit(int index, int orbit) {
 		orbits.put(index, orbit);
 	}
+
+	private void setOrbits(Map<Integer, Integer> orb) {
+		this.orbits = orb;
+	}
 	
 	public int getOrbit(int index){
 		return orbits.get(index);
+	}
+	
+	public ArrayList<Integer> getOrbitGroup(int index){
+		int orbit = getOrbit(index);
+		ArrayList<Integer> orbitGroup = new ArrayList<>();
+		
+		for (int vertex : getVertices()) {
+			if(getOrbit(vertex) == orbit)
+				orbitGroup.add(vertex);
+		}
+		
+		return orbitGroup;
 	}
 }

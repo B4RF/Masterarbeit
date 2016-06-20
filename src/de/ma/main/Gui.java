@@ -4,8 +4,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -176,13 +174,13 @@ public class Gui extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (partReflexive.isSelected()){
+				if (partReflexive.isSelected()) {
 					reflexive.setSelected(false);
 					orbits.setSelected(true);
 				}
 			}
 		});
-		
+
 		partReflexive.setToolTipText("Needs orbits for computation.");
 		orbits.setToolTipText("Removes duplicates but is time expensive.");
 	}
@@ -199,16 +197,17 @@ public class Gui extends JFrame {
 		int maxVertices = 0;
 
 		if (minimal.isSelected()) {
-			// maximal vertices for minimal graph is equals number of diamonds plus one
+			// maximal vertices for minimal graph is equals number of diamonds
+			// plus one
 			maxVertices = input.length() - input.replace("$", "").length() + 1;
 		}
 
 		GenerateGraphs genG = new GenerateGraphs(maxDegree, diameter, maxVertices, reflexive.isSelected(),
 				transitive.isSelected(), serial.isSelected(), partReflexive.isSelected(), orbits.isSelected());
-		LabelGraph labelG = new LabelGraph();
-		Graph currentGraph = genG.nextGraph();
+		LabelGraph labelG = new LabelGraph(orbits.isSelected());
+		Graph currentGraph;
 
-		while (currentGraph != null) {
+		while ((currentGraph = genG.nextGraph()) != null) {
 			Modal modal = new Modal(currentGraph);
 
 			ArrayList<Modal> labeled = labelG.labelGraph(modal, root);
@@ -219,11 +218,10 @@ public class Gui extends JFrame {
 			for (Modal m : labeled) {
 				enumModals.add(m);
 
-				if (!m.mlMc(root))
-					System.out.println("Error: Failed to ModalCheck a generated Modal.");
+				// if (!m.mlMc(root))
+				// System.out.println("Error: Failed to ModalCheck a generated
+				// Modal.");
 			}
-
-			currentGraph = genG.nextGraph();
 		}
 
 		return enumModals;
