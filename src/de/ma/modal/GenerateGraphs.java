@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -32,15 +34,20 @@ public class GenerateGraphs {
 	boolean preDecode;
 	Graph curGraph;
 
+	Graph backupGraph;
+	Map<Integer, ArrayList<Integer>> partitions = new HashMap<>();
+	int curPartition = 0;
+	boolean fullReflexive = false;
+
 	String lastLine = ""; // remove duplicates at 2 vertices
 
 	JFrame frame;
 	JProgressBar progress;
 
-	// TODO with o
 	String directgCmd = "directg.exe -T";
 
-	public GenerateGraphs(int maxD, int diam, int maxV, boolean ref, boolean trans, boolean ser, boolean partRef, boolean orb) {
+	public GenerateGraphs(int maxD, int diam, int maxV, boolean ref, boolean trans, boolean ser, boolean partRef,
+			boolean orb) {
 		this.maxDegree = maxD;
 		this.diameter = diam;
 		this.reflexive = ref;
@@ -66,15 +73,15 @@ public class GenerateGraphs {
 		frame.setLayout(new GridLayout(2, 0));
 		JLabel l = new JLabel("Generating satisfying graphs.", SwingConstants.CENTER);
 		frame.add(l);
-		
+
 		JPanel p = new JPanel();
 		int sum = 0;
-		
+
 		for (int i = 1; i <= maxVertices; i++) {
 			try {
-				Process gengCount = Runtime.getRuntime().exec("geng.exe -cD" + (maxDegree+1) + " -u " + i);
+				Process gengCount = Runtime.getRuntime().exec("geng.exe -cD" + (maxDegree + 1) + " -u " + i);
 				BufferedReader reader = new BufferedReader(new InputStreamReader(gengCount.getErrorStream()));
-				
+
 				reader.readLine();
 				String[] output = reader.readLine().split(" ");
 				sum += Integer.parseInt(output[1]);
@@ -82,7 +89,7 @@ public class GenerateGraphs {
 				e.printStackTrace();
 			}
 		}
-		
+
 		progress = new JProgressBar(0, sum);
 		p.add(progress);
 		frame.add(p);
@@ -113,46 +120,54 @@ public class GenerateGraphs {
 			do {
 				// do as long as no vertex needs to be added
 				while (!nextTree) {
-					
+
 					// check for generated digraphs with different init vertex
 					if (!preDecode && (curInitVertex < curVertices)) {
-						
+
 						if (initNextGraph())
 							return curGraph;
 
-					// TODO partially reflexive graphs
 					} else {
 
-						// check for directed graphs
-						if ((digraph = dirReader.readLine()) != null) {
-
-							decode(digraph);
+						// check for next partially reflexive graph
+						if (partReflexive && !preDecode && !fullReflexive) {
+							
+							nextReflexiveGraph();
 
 						} else {
 
-							// check for undirected graphs
-							if ((graph = genReader.readLine()) != null) {
+							// check for directed graphs
+							if ((digraph = dirReader.readLine()) != null) {
 								
-								progress.setValue(progress.getValue()+1);
+								decode(digraph);
 
-								if (!graph.equals(lastLine)) {
-									Process directg = Runtime.getRuntime().exec(directgCmd);
-									BufferedWriter dirWriter = new BufferedWriter(
-											new OutputStreamWriter(directg.getOutputStream()));
-									dirReader = new BufferedReader(new InputStreamReader(directg.getInputStream()));
-									dirWriter.write(graph + "\n");
-									dirWriter.close();
-								}
-
-								lastLine = graph;
 							} else {
-								nextTree = true;
+
+								// check for undirected graphs
+								if ((graph = genReader.readLine()) != null) {
+
+									progress.setValue(progress.getValue() + 1);
+
+									if (!graph.equals(lastLine)) {
+										
+										Process directg = Runtime.getRuntime().exec(directgCmd);
+										BufferedWriter dirWriter = new BufferedWriter(
+												new OutputStreamWriter(directg.getOutputStream()));
+										dirReader = new BufferedReader(new InputStreamReader(directg.getInputStream()));
+										dirWriter.write(graph + "\n");
+										dirWriter.close();
+									}
+
+									lastLine = graph;
+								} else {
+									nextTree = true;
+								}
 							}
 						}
 					}
 				}
 				nextTree = false;
-			} while(generateGraphs());
+			} while (generateGraphs());
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -163,7 +178,7 @@ public class GenerateGraphs {
 	}
 
 	private boolean initNextGraph() {
-		if (useOrbits && (curGraph.getOrbit(curInitVertex) != curInitVertex)) {
+		if (useOrbits && !curGraph.isOrbitRep(curInitVertex)) {
 			curInitVertex++;
 			return false;
 		}
@@ -173,7 +188,7 @@ public class GenerateGraphs {
 		// remove graphs with higher max degree
 		// remove graphs which have unreachable vertices
 		// remove graphs with depth higher than modal depth
-		if ((curGraph.getMaxDegree() <= maxDegree) && curGraph.allVertReach()
+		if ((curGraph.getMaxDegree() <= maxDegree+1) && curGraph.allVertReach()
 				&& (curGraph.getDepth() <= diameter / 2)) {
 
 			// TODO vielleicht transitive hülle nutzen
@@ -211,11 +226,120 @@ public class GenerateGraphs {
 		}
 	}
 
+	private void nextReflexiveGraph() {
+		curGraph = backupGraph.clone();
+		
+		// generate new partitions
+		if (curPartition >= partitions.size()) {
+
+			curPartition = 0;
+			
+			// start with one vertex in a partition
+			if (partitions.isEmpty()) {
+				
+				ArrayList<Integer> orbits = curGraph.getOrbitGroups();
+
+				for (int i = 0; i < orbits.size(); i++) {
+					ArrayList<Integer> list = new ArrayList<>();
+					list.add(orbits.get(i));
+					partitions.put(i, list);
+				}
+
+			// use partitions of size n to create size n+1
+			} else {
+				
+				if (partitions.get(0).size() == curVertices) {
+					fullReflexive = true;
+					curPartition = 0;
+					partitions.clear();
+				} else {
+
+					Map<Integer, ArrayList<Integer>> nextPartitions = new HashMap<>();
+					
+					for (Integer index : partitions.keySet()) {
+
+						ArrayList<Integer> partition = partitions.get(index);
+
+						int lastVertex = partition.get(partition.size() - 1);
+						int orbit = curGraph.getOrbit(lastVertex);
+						ArrayList<Integer> group = curGraph.getOrbitGroup(lastVertex);
+
+						for (int i = 0; i < group.size(); i++) {
+
+							if (group.get(i) > lastVertex) {
+								ArrayList<Integer> copy = new ArrayList<>(partition);
+								copy.add(group.get(i));
+								nextPartitions.put(nextPartitions.size(), copy);
+
+								break;
+							}
+						}
+
+						ArrayList<Integer> orbits = curGraph.getOrbitGroups();
+
+						for (int i = 0; i < orbits.size(); i++) {
+
+							if (orbits.get(i) > orbit) {
+								ArrayList<Integer> copy = new ArrayList<>(partition);
+								copy.add(orbits.get(i));
+								nextPartitions.put(nextPartitions.size(), copy);
+
+							}
+						}
+					}
+					
+					partitions = nextPartitions;
+				}
+			}
+		// manipulate graph to next partition
+		} else {
+			
+			ArrayList<Integer> partition = partitions.get(curPartition);
+			int newOrbit = curGraph.getOrbitGroups().size();
+
+			for (Integer orbit : curGraph.getOrbitGroups()) {
+				ArrayList<Integer> group = curGraph.getOrbitGroup(orbit);
+				ArrayList<Integer> subgroup = new ArrayList<>();
+				
+				for (Integer vertex : partition) {
+					if(group.contains(vertex)){
+						subgroup.add(vertex);
+						curGraph.addEdge(vertex, vertex);
+					}
+				}
+				
+				boolean newOrbitUsed = false;
+				
+				if(!subgroup.isEmpty()){
+					if(subgroup.get(0).equals(orbit)){
+						for (Integer vertex : group) {
+							if(!subgroup.contains(vertex)){
+								curGraph.addOrbit(vertex, newOrbit);
+								newOrbitUsed = true;
+							}
+						}
+					}else{
+						newOrbitUsed = true;
+						for (Integer vertex : subgroup) {
+							curGraph.addOrbit(vertex, newOrbit);
+						}
+					}
+					
+					if(newOrbitUsed)
+						newOrbit++;
+				}
+			}
+
+			curPartition++;
+			curInitVertex = 0;
+		}
+	}
+
 	private boolean generateGraphs() {
 		try {
 			curVertices++;
 			if (curVertices <= maxVertices) {
-				Process geng = Runtime.getRuntime().exec("geng.exe -cD" + (maxDegree+1) + " " + curVertices);
+				Process geng = Runtime.getRuntime().exec("geng.exe -cD" + (maxDegree + 1) + " " + curVertices);
 				genReader = new BufferedReader(new InputStreamReader(geng.getInputStream()));
 
 				curInitVertex = 0;
@@ -254,9 +378,15 @@ public class GenerateGraphs {
 		}
 
 		curGraph = graph;
-		if(useOrbits)
-			calculateOrbits();
 		curInitVertex = 0;
+
+		if (useOrbits)
+			calculateOrbits();
+
+		if (partReflexive) {
+			backupGraph = curGraph.clone();
+			fullReflexive = false;
+		}
 	}
 
 	private void calculateOrbits() {
@@ -298,7 +428,7 @@ public class GenerateGraphs {
 
 				int orbit = -1;
 				for (String t : s.split(" ")) {
-					
+
 					if (!t.isEmpty() && !t.startsWith("(")) {
 
 						if (t.contains(":")) {
@@ -311,7 +441,7 @@ public class GenerateGraphs {
 								if (orbit == -1) {
 									orbit = index;
 								}
-
+								
 								curGraph.addOrbit(index, orbit);
 							}
 						} else {

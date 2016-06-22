@@ -86,7 +86,7 @@ public class Graph {
 		if (initialVertex != null)
 			g.setInitVertex(initialVertex);
 		
-		g.setOrbits(orbits);
+		g.setOrbits(new HashMap<Integer, Integer>(orbits));
 
 		return g;
 	}
@@ -168,6 +168,26 @@ public class Graph {
 	
 	public int getOrbit(int index){
 		return orbits.get(index);
+	}
+	
+	public boolean isOrbitRep(int index){
+		ArrayList<Integer> group = getOrbitGroup(index);
+		
+		for (Integer i : group) {
+			if(i<index)
+				return false;
+		}
+		
+		return true;
+	}
+	
+	public ArrayList<Integer> getOrbitGroups(){
+		ArrayList<Integer> orbitgroup = new ArrayList<>();
+		
+		for (Integer index : orbits.keySet()) {
+			orbitgroup.add(index);
+		}
+		return orbitgroup;
 	}
 	
 	public ArrayList<Integer> getOrbitGroup(int index){
