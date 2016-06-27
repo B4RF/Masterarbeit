@@ -211,15 +211,15 @@ public class Modal {
 	}
 	
 	public boolean hasAutWithSmallerIndex(int index){
-		if(graph.getOrbit(index) == index)
+		if(graph.isOrbitRep(index))
 			return false;
 		
-		for (int vertex : graph.getOrbitGroup(index)) {
-			if(vertex < index){
-				ArrayList<String> vars1 = getVarsFromVertex(vertex);
-				ArrayList<String> vars2 = getVarsFromVertex(index);
+		for (int aut : graph.getOrbitGroup(index)) {
+			if(aut < index){
+				ArrayList<String> varsAut = getVarsFromVertex(aut);
+				ArrayList<String> varsIndex = getVarsFromVertex(index);
 				
-				if(vars1.containsAll(vars2) && vars2.containsAll(vars1))
+				if(varsAut.containsAll(varsIndex) && varsIndex.containsAll(varsAut))
 					return true;
 			}
 		}

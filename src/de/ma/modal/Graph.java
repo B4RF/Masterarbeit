@@ -170,28 +170,19 @@ public class Graph {
 		return orbits.get(index);
 	}
 	
-	public boolean isOrbitRep(int index){
-		ArrayList<Integer> group = getOrbitGroup(index);
-		
-		for (Integer i : group) {
-			if(i<index)
-				return false;
-		}
-		
-		return true;
-	}
-	
 	public ArrayList<Integer> getOrbitGroups(){
-		ArrayList<Integer> orbitgroup = new ArrayList<>();
+		ArrayList<Integer> orbitGroups = new ArrayList<>();
 		
-		for (Integer index : orbits.keySet()) {
-			orbitgroup.add(index);
+		for (Integer orb : orbits.values()) {
+			if(!orbitGroups.contains(orb))
+				orbitGroups.add(orb);
 		}
-		return orbitgroup;
+		
+		return orbitGroups;
 	}
 	
-	public ArrayList<Integer> getOrbitGroup(int index){
-		int orbit = getOrbit(index);
+	// returns all vertices which are in the same orbit
+	public ArrayList<Integer> getOrbitGroup(int orbit){
 		ArrayList<Integer> orbitGroup = new ArrayList<>();
 		
 		for (int vertex : getVertices()) {
@@ -200,5 +191,25 @@ public class Graph {
 		}
 		
 		return orbitGroup;
+	}
+	
+	// the lowest index is the representative of an orbit
+	public int getOrbitRep(int orbit){
+		int rep = Integer.MAX_VALUE;
+		
+		for (Integer i : getOrbitGroup(orbit)) {
+			rep = Math.min(rep, i);
+		}
+		
+		return rep;
+	}
+	
+	public boolean isOrbitRep(int index){
+		int orb = getOrbit(index);
+		
+		if(getOrbitRep(orb) == index)
+			return true;
+		
+		return false;
 	}
 }

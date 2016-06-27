@@ -7,8 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -35,7 +34,7 @@ public class GenerateGraphs {
 	Graph curGraph;
 
 	Graph backupGraph;
-	Map<Integer, ArrayList<Integer>> partitions = new HashMap<>();
+	LinkedList<ArrayList<Integer>> partitions = new LinkedList<>();
 	int curPartition = 0;
 	boolean fullReflexive = false;
 
@@ -131,14 +130,14 @@ public class GenerateGraphs {
 
 						// check for next partially reflexive graph
 						if (partReflexive && !preDecode && !fullReflexive) {
-							
+
 							nextReflexiveGraph();
 
 						} else {
 
 							// check for directed graphs
 							if ((digraph = dirReader.readLine()) != null) {
-								
+
 								decode(digraph);
 
 							} else {
@@ -149,7 +148,7 @@ public class GenerateGraphs {
 									progress.setValue(progress.getValue() + 1);
 
 									if (!graph.equals(lastLine)) {
-										
+
 										Process directg = Runtime.getRuntime().exec(directgCmd);
 										BufferedWriter dirWriter = new BufferedWriter(
 												new OutputStreamWriter(directg.getOutputStream()));
@@ -188,7 +187,7 @@ public class GenerateGraphs {
 		// remove graphs with higher max degree
 		// remove graphs which have unreachable vertices
 		// remove graphs with depth higher than modal depth
-		if ((curGraph.getMaxDegree() <= maxDegree+1) && curGraph.allVertReach()
+		if ((curGraph.getMaxDegree() <= maxDegree + 1) && curGraph.allVertReach()
 				&& (curGraph.getDepth() <= diameter / 2)) {
 
 			// TODO vielleicht transitive hülle nutzen
@@ -233,43 +232,41 @@ public class GenerateGraphs {
 		if (curPartition >= partitions.size()) {
 
 			curPartition = 0;
-			
+
 			// start with one vertex in a partition
 			if (partitions.isEmpty()) {
-				
+
 				ArrayList<Integer> orbits = curGraph.getOrbitGroups();
 
-				for (int i = 0; i < orbits.size(); i++) {
+				for (Integer i : orbits) {
 					ArrayList<Integer> list = new ArrayList<>();
-					list.add(orbits.get(i));
-					partitions.put(i, list);
+					list.add(curGraph.getOrbitRep(i));
+					partitions.add(list);
 				}
 
-			// use partitions of size n to create size n+1
+				// use partitions of size n to create size n+1
 			} else {
-				
-				if (partitions.get(0).size() == curVertices) {
+
+				if (partitions.getFirst().size() == curVertices) {
+					
 					fullReflexive = true;
-					curPartition = 0;
 					partitions.clear();
+					
 				} else {
 
-					Map<Integer, ArrayList<Integer>> nextPartitions = new HashMap<>();
-					
-					for (Integer index : partitions.keySet()) {
+					LinkedList<ArrayList<Integer>> nextPartitions = new LinkedList<>();
 
-						ArrayList<Integer> partition = partitions.get(index);
+					for (ArrayList<Integer> partition : partitions) {
 
 						int lastVertex = partition.get(partition.size() - 1);
 						int orbit = curGraph.getOrbit(lastVertex);
-						ArrayList<Integer> group = curGraph.getOrbitGroup(lastVertex);
+						ArrayList<Integer> group = curGraph.getOrbitGroup(orbit);
 
-						for (int i = 0; i < group.size(); i++) {
-
-							if (group.get(i) > lastVertex) {
+						for (Integer i : group) {
+							if (i > lastVertex) {
 								ArrayList<Integer> copy = new ArrayList<>(partition);
-								copy.add(group.get(i));
-								nextPartitions.put(nextPartitions.size(), copy);
+								copy.add(i);
+								nextPartitions.add(copy);
 
 								break;
 							}
@@ -277,13 +274,11 @@ public class GenerateGraphs {
 
 						ArrayList<Integer> orbits = curGraph.getOrbitGroups();
 
-						for (int i = 0; i < orbits.size(); i++) {
-
-							if (orbits.get(i) > orbit) {
+						for (Integer i : orbits) {
+							if (i > orbit) {
 								ArrayList<Integer> copy = new ArrayList<>(partition);
-								copy.add(orbits.get(i));
-								nextPartitions.put(nextPartitions.size(), copy);
-
+								copy.add(curGraph.getOrbitRep(i));
+								nextPartitions.add(copy);
 							}
 						}
 					}
@@ -291,42 +286,29 @@ public class GenerateGraphs {
 					partitions = nextPartitions;
 				}
 			}
-		// manipulate graph to next partition
+			// manipulate graph to next partition
 		} else {
-			
+
 			ArrayList<Integer> partition = partitions.get(curPartition);
 			int newOrbit = curGraph.getOrbitGroups().size();
 
 			for (Integer orbit : curGraph.getOrbitGroups()) {
 				ArrayList<Integer> group = curGraph.getOrbitGroup(orbit);
 				ArrayList<Integer> subgroup = new ArrayList<>();
-				
+
 				for (Integer vertex : partition) {
-					if(group.contains(vertex)){
+					if (group.contains(vertex)) {
 						subgroup.add(vertex);
 						curGraph.addEdge(vertex, vertex);
 					}
 				}
-				
-				boolean newOrbitUsed = false;
-				
-				if(!subgroup.isEmpty()){
-					if(subgroup.get(0).equals(orbit)){
-						for (Integer vertex : group) {
-							if(!subgroup.contains(vertex)){
-								curGraph.addOrbit(vertex, newOrbit);
-								newOrbitUsed = true;
-							}
-						}
-					}else{
-						newOrbitUsed = true;
-						for (Integer vertex : subgroup) {
-							curGraph.addOrbit(vertex, newOrbit);
-						}
+
+				if (!subgroup.isEmpty() && (subgroup.size() < group.size())) {
+					for (Integer vertex : subgroup) {
+						curGraph.addOrbit(vertex, newOrbit);
 					}
-					
-					if(newOrbitUsed)
-						newOrbit++;
+
+					newOrbit++;
 				}
 			}
 
@@ -408,10 +390,7 @@ public class GenerateGraphs {
 					dreadWriter.write(edge + "\n");
 				}
 
-				if (i == n - 1)
-					dreadWriter.write(".\n");
-				else
-					dreadWriter.write(";\n");
+				dreadWriter.write(";\n");
 			}
 
 			// execute and output orbits
@@ -424,9 +403,10 @@ public class GenerateGraphs {
 				orbits = line;
 			}
 
+			int orbit = 0;
+
 			for (String s : orbits.split(";")) {
 
-				int orbit = -1;
 				for (String t : s.split(" ")) {
 
 					if (!t.isEmpty() && !t.startsWith("(")) {
@@ -438,23 +418,18 @@ public class GenerateGraphs {
 							int end = Integer.parseInt(range[1]);
 
 							for (int index = start; index <= end; index++) {
-								if (orbit == -1) {
-									orbit = index;
-								}
-								
+
 								curGraph.addOrbit(index, orbit);
 							}
 						} else {
 							int index = Integer.parseInt(t);
 
-							if (orbit == -1) {
-								orbit = index;
-							}
-
 							curGraph.addOrbit(index, orbit);
 						}
 					}
 				}
+
+				orbit++;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
