@@ -1,6 +1,5 @@
 package de.ma.modal;
 
-import java.awt.GridLayout;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -9,11 +8,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.SwingConstants;
 
 public class GenerateGraphs {
 	int maxDegree;
@@ -40,13 +35,13 @@ public class GenerateGraphs {
 
 	String lastLine = ""; // remove duplicates at 2 vertices
 
-	JFrame frame;
 	JProgressBar progress;
 
 	String directgCmd = "directg.exe -T";
 
-	public GenerateGraphs(int maxD, int diam, int maxV, boolean ref, boolean trans, boolean ser, boolean partRef,
+	public GenerateGraphs(JProgressBar bar, int maxD, int diam, int maxV, boolean ref, boolean trans, boolean ser, boolean partRef,
 			boolean orb) {
+		this.progress = bar;
 		this.maxDegree = maxD;
 		this.diameter = diam;
 		this.reflexive = ref;
@@ -55,12 +50,6 @@ public class GenerateGraphs {
 		this.useOrbits = orb;
 
 		this.maxVertices = maxV;
-		// number of vertices for full graph
-		if (maxVertices == 0) {
-			for (int i = 0; i <= diameter / 2; i++) {
-				maxVertices += Math.pow(maxDegree, i);
-			}
-		}
 
 		if (reflexive)
 			this.partReflexive = false;
@@ -68,14 +57,7 @@ public class GenerateGraphs {
 			this.partReflexive = partRef;
 		this.curVertices = 0;
 
-		frame = new JFrame("In progress...");
-		frame.setLayout(new GridLayout(2, 0));
-		JLabel l = new JLabel("Generating satisfying graphs.", SwingConstants.CENTER);
-		frame.add(l);
-
-		JPanel p = new JPanel();
 		int sum = 0;
-
 		for (int i = 1; i <= maxVertices; i++) {
 			try {
 				Process gengCount = Runtime.getRuntime().exec("geng.exe -cD" + (maxDegree + 1) + " -u " + i);
@@ -88,13 +70,8 @@ public class GenerateGraphs {
 				e.printStackTrace();
 			}
 		}
-
-		progress = new JProgressBar(0, sum);
-		p.add(progress);
-		frame.add(p);
-		frame.setSize(350, 100);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
+	
+		progress.setMaximum(sum);
 
 		try {
 			generateGraphs();
@@ -184,11 +161,9 @@ public class GenerateGraphs {
 		curGraph.setInitVertex(curInitVertex);
 		curInitVertex++;
 
-		// remove graphs with higher max degree
 		// remove graphs which have unreachable vertices
 		// remove graphs with depth higher than modal depth
-		if ((curGraph.getMaxDegree() <= maxDegree + 1) && curGraph.allVertReach()
-				&& (curGraph.getDepth() <= diameter / 2)) {
+		if (curGraph.allVertReach() && (curGraph.getDepth() <= diameter / 2)) {
 
 			// TODO vielleicht transitive hülle nutzen
 			if (transitive) {
@@ -227,7 +202,7 @@ public class GenerateGraphs {
 
 	private void nextReflexiveGraph() {
 		curGraph = backupGraph.clone();
-		
+
 		// generate new partitions
 		if (curPartition >= partitions.size()) {
 
@@ -248,10 +223,10 @@ public class GenerateGraphs {
 			} else {
 
 				if (partitions.getFirst().size() == curVertices) {
-					
+
 					fullReflexive = true;
 					partitions.clear();
-					
+
 				} else {
 
 					LinkedList<ArrayList<Integer>> nextPartitions = new LinkedList<>();
@@ -282,7 +257,7 @@ public class GenerateGraphs {
 							}
 						}
 					}
-					
+
 					partitions = nextPartitions;
 				}
 			}
@@ -331,7 +306,7 @@ public class GenerateGraphs {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		frame.dispose();
+		
 		return false;
 	}
 

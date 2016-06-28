@@ -131,13 +131,8 @@ public class Gui extends JFrame {
 				else {
 					final Node root = parser.formula(input);
 
-					
-					new Thread(new Runnable() {
-						public void run() {
-							new SatisfyingModals(root, reflexive.isSelected(),
-									transitive.isSelected(), serial.isSelected(), partReflexive.isSelected(), orbits.isSelected());
-						}
-					}).start();
+					new SatisfyingModals(root, reflexive.isSelected(), transitive.isSelected(), serial.isSelected(),
+							partReflexive.isSelected(), orbits.isSelected());
 				}
 			}
 		});
