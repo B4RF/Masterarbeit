@@ -127,11 +127,6 @@ public class SatisfyingModals extends JFrame {
 
 					if (minimal) {
 						publish(m);
-
-						if (enumModals.size() == 1) {
-							enumModals.get(0).draw(imageLabel);
-							pack();
-						}
 					}
 				}
 			}
@@ -150,6 +145,11 @@ public class SatisfyingModals extends JFrame {
 			for (Modal m : chunks) {
 				enumModals.add(m);
 				listModel.addElement("Graph " + (enumModals.size() - 1));
+
+				if (enumModals.size() == 1) {
+					enumModals.get(0).draw(imageLabel);
+					pack();
+				}
 			}
 		}
 	}

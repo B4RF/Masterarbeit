@@ -1,8 +1,7 @@
 package de.ma.ast;
 
 import de.ma.lexer.Token;
-import de.ma.treewalker.IntWithMax;
-import de.ma.treewalker.MaxDegreeTreeWalker;
+import de.ma.treewalker.FormulaSizeTreeWalker;
 import de.ma.treewalker.ModalDepthTreeWalker;
 import de.ma.treewalker.TreeWalker;
 
@@ -30,11 +29,8 @@ public abstract class Node implements Cloneable {
 	}
 
 	public int getMaxDegree() {
-		//TODO formel größe berechnen
-		// calculate max diamond in a single world
-		MaxDegreeTreeWalker mdtw = new MaxDegreeTreeWalker();
-		IntWithMax iwm = mdtw.walk(this, null);
+		FormulaSizeTreeWalker fstw = new FormulaSizeTreeWalker();
 
-		return Math.max(iwm.getCurrentValue(), iwm.getMaxValue());
+		return fstw.walk(this, null);
 	}
 }
