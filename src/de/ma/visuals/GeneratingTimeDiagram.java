@@ -3,8 +3,6 @@ package de.ma.visuals;
 import java.awt.Color;
 import java.awt.Component;
 
-import javax.swing.JPanel;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -14,6 +12,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.util.ShapeUtilities;
 
 public class GeneratingTimeDiagram {
 
@@ -22,9 +21,6 @@ public class GeneratingTimeDiagram {
 
 	int numberOfGraphs;
 	long startTime;
-
-	boolean running = true;
-	boolean changed = false;
 
 	public GeneratingTimeDiagram() {
 		series = new XYSeries("generatedGraphs");
@@ -37,39 +33,9 @@ public class GeneratingTimeDiagram {
 
 		startTime = System.nanoTime();
 		update(0);
-
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				while (running) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					if (!changed) {
-						update(0);
-					} else {
-						changed = false;
-					}
-				}
-			}
-		}).start();
-	}
-
-	public void stop() {
-		running = false;
-	}
-
-	public void setVisible(JPanel panel) {
-		// TODO
 	}
 
 	public void update(int graphs) {
-		changed = true;
 		long time = (System.nanoTime() - startTime) / 1000000;
 
 		numberOfGraphs += graphs;
@@ -78,7 +44,7 @@ public class GeneratingTimeDiagram {
 
 	private JFreeChart createChart(final XYDataset dataset) {
 
-		final JFreeChart chart = ChartFactory.createXYLineChart("Generation time", "Seconds", "Number of Graphs",
+		final JFreeChart chart = ChartFactory.createXYLineChart("Generation time", "milliseconds", "Number of Graphs",
 				dataset, PlotOrientation.VERTICAL, false, true, false);
 
 		chart.setBackgroundPaint(Color.white);
@@ -90,6 +56,7 @@ public class GeneratingTimeDiagram {
 
 		final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 		renderer.setSeriesLinesVisible(1, false);
+		renderer.setSeriesShape(0, ShapeUtilities.createDiagonalCross(3, 0.1f));
 		plot.setRenderer(renderer);
 
 		return chart;

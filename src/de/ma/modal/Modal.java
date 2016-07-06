@@ -82,14 +82,15 @@ public class Modal {
 			}
 		}
 
-		for (String var : getNegValuation().keySet()) {
-			if (getVerticesWithVar("~" + var).contains(v)) {
-				if (vars.equals(""))
-					vars = "\u00AC"+var;
-				else
-					vars += ",\u00AC" + var;
-			}
-		}
+		//TODO used for  testing
+//		for (String var : getNegValuation().keySet()) {
+//			if (getVerticesWithVar("~" + var).contains(v)) {
+//				if (vars.equals(""))
+//					vars = "\u00AC"+var;
+//				else
+//					vars += ",\u00AC" + var;
+//			}
+//		}
 
 		return vars;
 	}

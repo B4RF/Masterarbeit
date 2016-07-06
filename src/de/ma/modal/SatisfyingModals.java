@@ -1,6 +1,7 @@
 package de.ma.modal;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +38,9 @@ public class SatisfyingModals extends JFrame {
 	JList<String> enumList = new JList<>(listModel);
 	JLabel imageLabel = new JLabel();
 
-	int modalIndex;
+	int modalIndex = -1;
 	
+	Container pane;
 	GeneratingTimeDiagram gtd;
 
 	public SatisfyingModals(Node rt, boolean ref, boolean trans, boolean ser, boolean partRef, boolean orb) {
@@ -53,24 +55,35 @@ public class SatisfyingModals extends JFrame {
 
 			@Override
 			public void valueChanged(ListSelectionEvent evt) {
-				int index = Integer.parseInt(enumList.getSelectedValue().substring(6));
+				String selection = enumList.getSelectedValue();
+				
+				if(selection.equals("timeDiagram")){
+					pane.remove(imageLabel);
+					pane.add(gtd.getChartPanel(), BorderLayout.CENTER);
+				}else{
+					pane.remove(gtd.getChartPanel());
+					pane.add(imageLabel, BorderLayout.CENTER);
+					int index = Integer.parseInt(selection.substring(6));
 
-				if (index != modalIndex) {
-					modalIndex = index;
-					Modal m = enumModals.get(modalIndex);
-					m.draw(imageLabel);
-					pack();
+					if (index != modalIndex) {
+						modalIndex = index;
+						Modal m = enumModals.get(modalIndex);
+						m.draw(imageLabel);
+					}
 				}
+				
+				pack();
 			}
 		});
 		
 		gtd = new GeneratingTimeDiagram();
-
-		this.getContentPane().add(new JLabel(computeNNF(), SwingConstants.CENTER), BorderLayout.NORTH);
-		this.getContentPane().add(new JScrollPane(enumList), BorderLayout.WEST);
-		this.getContentPane().add(imageLabel, BorderLayout.CENTER);
-		this.getContentPane().add(gtd.getChartPanel(), BorderLayout.EAST);
-
+		listModel.addElement("timeDiagram");
+		
+		pane = this.getContentPane();
+		pane.add(new JLabel(computeNNF(), SwingConstants.CENTER), BorderLayout.NORTH);
+		pane.add(new JScrollPane(enumList), BorderLayout.WEST);
+		pane.add(gtd.getChartPanel(), BorderLayout.CENTER);
+		
 		setTitle("Satisfying Models");
 		pack();
 		setLocationRelativeTo(null);
@@ -142,7 +155,6 @@ public class SatisfyingModals extends JFrame {
 				frame.dispose();
 				JOptionPane.showMessageDialog(frame, "No satisfying modal generated.");
 			}else{
-				gtd.stop();
 				frame.remove(progress);
 			}
 			return null;
@@ -154,10 +166,10 @@ public class SatisfyingModals extends JFrame {
 				enumModals.add(m);
 				listModel.addElement("Graph " + (enumModals.size() - 1));
 
-				if (enumModals.size() == 1) {
-					enumModals.get(0).draw(imageLabel);
-					pack();
-				}
+//				if (enumModals.size() == 1) {
+//					enumModals.get(0).draw(imageLabel);
+//					pack();
+//				}
 			}
 		}
 	}
