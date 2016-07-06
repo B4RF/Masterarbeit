@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 
 import de.ma.ast.Node;
 import de.ma.treewalker.MlMcTreeWalker;
+import de.ma.visuals.VisualizeGraph;
 
 public class Modal {
 	private final Graph graph;

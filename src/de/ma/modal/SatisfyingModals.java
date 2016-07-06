@@ -20,6 +20,7 @@ import de.ma.ast.Node;
 import de.ma.treewalker.NNFTreeWalker;
 import de.ma.treewalker.ReduceTreeWalker;
 import de.ma.treewalker.StringTreeWalker;
+import de.ma.visuals.GeneratingTimeDiagram;
 
 public class SatisfyingModals extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -37,6 +38,8 @@ public class SatisfyingModals extends JFrame {
 	JLabel imageLabel = new JLabel();
 
 	int modalIndex;
+	
+	GeneratingTimeDiagram gtd;
 
 	public SatisfyingModals(Node rt, boolean ref, boolean trans, boolean ser, boolean partRef, boolean orb) {
 		this.root = rt;
@@ -60,10 +63,13 @@ public class SatisfyingModals extends JFrame {
 				}
 			}
 		});
+		
+		gtd = new GeneratingTimeDiagram();
 
 		this.getContentPane().add(new JLabel(computeNNF(), SwingConstants.CENTER), BorderLayout.NORTH);
 		this.getContentPane().add(new JScrollPane(enumList), BorderLayout.WEST);
 		this.getContentPane().add(imageLabel, BorderLayout.CENTER);
+		this.getContentPane().add(gtd.getChartPanel(), BorderLayout.EAST);
 
 		setTitle("Satisfying Models");
 		pack();
@@ -126,6 +132,7 @@ public class SatisfyingModals extends JFrame {
 					}
 
 					if (minimal) {
+						gtd.update(1);
 						publish(m);
 					}
 				}
@@ -135,6 +142,7 @@ public class SatisfyingModals extends JFrame {
 				frame.dispose();
 				JOptionPane.showMessageDialog(frame, "No satisfying modal generated.");
 			}else{
+				gtd.stop();
 				frame.remove(progress);
 			}
 			return null;
