@@ -123,6 +123,7 @@ public class SatisfyingModals extends JFrame {
 			Graph currentGraph;
 
 			while ((currentGraph = genG.nextGraph()) != null) {
+				
 				ArrayList<Modal> labeled = labelG.labelGraph(new Modal(currentGraph), root);
 
 				boolean minimal;
@@ -151,6 +152,7 @@ public class SatisfyingModals extends JFrame {
 				}
 			}
 			
+			Thread.sleep(1000);	// takes care of the delay from publish
 			if(enumModals.size() == 0){
 				frame.dispose();
 				JOptionPane.showMessageDialog(frame, "No satisfying modal generated.");
