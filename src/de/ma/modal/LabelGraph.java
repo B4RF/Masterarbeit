@@ -15,12 +15,7 @@ import de.ma.treewalker.AndOrTreeWalker;
 import de.ma.treewalker.NNFTreeWalker;
 
 public class LabelGraph {
-	private boolean useOrbits;
-
-	public LabelGraph(boolean orb) {
-		this.useOrbits = orb;
-	}
-
+	
 	public ArrayList<Modal> labelGraph(Modal modal, Node root) {
 		AndOrTreeWalker aotw = new AndOrTreeWalker();
 		root = aotw.walk(root, null);

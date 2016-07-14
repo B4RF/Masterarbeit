@@ -152,6 +152,43 @@ public class Modal {
 		}
 		return getValuation().containsKey(var);
 	}
+	
+	public ArrayList<ArrayList<String>> getLabelFingerprint(){
+		ArrayList<ArrayList<String>> fingerprint = new ArrayList<>();
+		
+		for (int i = 0; i < getVertices().size(); i++) {
+			fingerprint.add(getVarsFromVertex(i));
+		}
+		
+		return fingerprint;
+	}
+	
+	public boolean hasFingerprint(ArrayList<ArrayList<String>> fp){
+		boolean identical = true;
+		
+		for (int i = 0; i < getVertices().size(); i++) {
+			ArrayList<String> ownVars = getVarsFromVertex(i);
+			ArrayList<String> extVars = fp.get(i);
+			
+			for (String s : extVars) {
+				if(!ownVars.contains(s)){
+					identical = false;
+					break;
+				}
+			}
+			
+			if(identical){
+				for (String s : ownVars) {
+					if(!extVars.contains(s)){
+						identical = false;
+						break;
+					}
+				}
+			}
+		}
+		
+		return identical;
+	}
 
 	public boolean mlMc(Node root) {
 		MlMcTreeWalker mmtw = new MlMcTreeWalker();

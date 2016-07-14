@@ -57,12 +57,15 @@ public class SatisfyingModals extends JFrame {
 			public void valueChanged(ListSelectionEvent evt) {
 				String selection = enumList.getSelectedValue();
 				
-				if(selection.equals("timeDiagram")){
-					pane.remove(imageLabel);
-					pane.add(gtd.getChartPanel(), BorderLayout.CENTER);
+				if(selection.equals("delayDiagram")){
+					pane.remove(0);
+					pane.add(gtd.getDelayPanel(), BorderLayout.CENTER, 0);
+				}else if(selection.equals("timeDiagram")){
+					pane.remove(0);
+					pane.add(gtd.getTimePanel(), BorderLayout.CENTER, 0);
 				}else{
-					pane.remove(gtd.getChartPanel());
-					pane.add(imageLabel, BorderLayout.CENTER);
+					pane.remove(0);
+					pane.add(imageLabel, BorderLayout.CENTER, 0);
 					int index = Integer.parseInt(selection.substring(6));
 
 					if (index != modalIndex) {
@@ -72,17 +75,19 @@ public class SatisfyingModals extends JFrame {
 					}
 				}
 				
+				pane.repaint();
 				pack();
 			}
 		});
 		
 		gtd = new GeneratingTimeDiagram();
+		listModel.addElement("delayDiagram");
 		listModel.addElement("timeDiagram");
 		
 		pane = this.getContentPane();
 		pane.add(new JLabel(computeNNF(), SwingConstants.CENTER), BorderLayout.NORTH);
 		pane.add(new JScrollPane(enumList), BorderLayout.WEST);
-		pane.add(gtd.getChartPanel(), BorderLayout.CENTER);
+		pane.add(gtd.getDelayPanel(), BorderLayout.CENTER, 0);
 		
 		setTitle("Satisfying Models");
 		pack();
@@ -119,13 +124,15 @@ public class SatisfyingModals extends JFrame {
 			GenerateGraphs genG = new GenerateGraphs(progress, maxDegree, diameter, maxVertices, reflexive, transitive, serial,
 					partialReflexive, useOrbits);
 
-			LabelGraph labelG = new LabelGraph(useOrbits);
+			LabelGraph labelG = new LabelGraph();
 			Graph currentGraph;
+			gtd.start();
 
 			while ((currentGraph = genG.nextGraph()) != null) {
 				
 				ArrayList<Modal> labeled = labelG.labelGraph(new Modal(currentGraph), root);
-
+				ArrayList<ArrayList<ArrayList<String>>> fingerprints = new ArrayList<>();
+				
 				boolean minimal;
 
 				for (Modal m : labeled) {
@@ -146,13 +153,22 @@ public class SatisfyingModals extends JFrame {
 					}
 
 					if (minimal) {
-						gtd.update(1);
-						publish(m);
+						boolean dup = false;
+						for (ArrayList<ArrayList<String>> fp : fingerprints) {
+							if(m.hasFingerprint(fp))
+								dup = true;
+						}
+						
+						if(!dup){
+							fingerprints.add(m.getLabelFingerprint());
+							gtd.update(1);
+							publish(m);
+						}
 					}
 				}
 			}
 			
-			Thread.sleep(1000);	// takes care of the delay from publish
+			Thread.sleep(100);	// takes care of the delay from publish
 			if(enumModals.size() == 0){
 				frame.dispose();
 				JOptionPane.showMessageDialog(frame, "No satisfying modal generated.");

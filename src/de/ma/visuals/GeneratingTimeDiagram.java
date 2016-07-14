@@ -16,22 +16,34 @@ import org.jfree.util.ShapeUtilities;
 
 public class GeneratingTimeDiagram {
 
-	ChartPanel chartPanel;
-	XYSeries series;
+	ChartPanel timePanel;
+	ChartPanel delayPanel;
+	XYSeries timeSeries;
+	XYSeries delaySeries;
 
 	int numberOfGraphs;
 	long startTime;
+	long lastTime;
 
 	public GeneratingTimeDiagram() {
-		series = new XYSeries("generatedGraphs");
-		final XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(series);
-		final JFreeChart chart = createChart(dataset);
-		chartPanel = new ChartPanel(chart);
-		chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
-		// setContentPane(chartPanel);
+		timeSeries = new XYSeries("generatedGraphs");
+		final XYSeriesCollection dataset1 = new XYSeriesCollection();
+		dataset1.addSeries(timeSeries);
+		final JFreeChart chart1 = createChart(dataset1, "Generation time", "milliseconds", "number of graphs");
+		timePanel = new ChartPanel(chart1);
+		timePanel.setPreferredSize(new java.awt.Dimension(500, 270));
 
+		delaySeries = new XYSeries("generatedGraphs");
+		final XYSeriesCollection dataset2 = new XYSeriesCollection();
+		dataset2.addSeries(delaySeries);
+		final JFreeChart chart2 = createChart(dataset2, "Generation delay", "graph", "delay");
+		delayPanel = new ChartPanel(chart2);
+		delayPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+	}
+
+	public void start() {
 		startTime = System.nanoTime();
+		lastTime = startTime;
 		update(0);
 	}
 
@@ -39,13 +51,19 @@ public class GeneratingTimeDiagram {
 		long time = (System.nanoTime() - startTime) / 1000000;
 
 		numberOfGraphs += graphs;
-		series.add(time, numberOfGraphs);
+		timeSeries.add(time, numberOfGraphs);
+		
+		long tempTime = System.nanoTime();
+		time = (tempTime - lastTime) / 1000000;
+		lastTime = tempTime;
+		
+		delaySeries.add(numberOfGraphs, time);
 	}
 
-	private JFreeChart createChart(final XYDataset dataset) {
+	private JFreeChart createChart(final XYDataset dataset, String headline, String xLabel, String yLabel) {
 
-		final JFreeChart chart = ChartFactory.createXYLineChart("Generation time", "milliseconds", "Number of Graphs",
-				dataset, PlotOrientation.VERTICAL, false, true, false);
+		final JFreeChart chart = ChartFactory.createXYLineChart(headline, xLabel, yLabel, dataset,
+				PlotOrientation.VERTICAL, false, true, false);
 
 		chart.setBackgroundPaint(Color.white);
 		final XYPlot plot = chart.getXYPlot();
@@ -62,7 +80,11 @@ public class GeneratingTimeDiagram {
 		return chart;
 	}
 
-	public Component getChartPanel() {
-		return chartPanel;
+	public Component getTimePanel() {
+		return timePanel;
+	}
+
+	public Component getDelayPanel() {
+		return delayPanel;
 	}
 }
