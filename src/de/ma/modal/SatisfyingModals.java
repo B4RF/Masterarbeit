@@ -155,7 +155,7 @@ public class SatisfyingModals extends JFrame {
 					if (minimal) {
 						boolean dup = false;
 						for (ArrayList<ArrayList<String>> fp : fingerprints) {
-							if(m.hasFingerprint(fp))
+							if(m.hasFingerprint(fp, useOrbits))
 								dup = true;
 						}
 						

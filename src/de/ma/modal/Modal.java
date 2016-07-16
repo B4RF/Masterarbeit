@@ -68,7 +68,7 @@ public class Modal {
 
 		return vars;
 	}
-	
+
 	// without negative vars
 	public String printVarsFromVertex(Integer v) {
 		String vars = "";
@@ -82,15 +82,15 @@ public class Modal {
 			}
 		}
 
-		//TODO used for  testing
-//		for (String var : getNegValuation().keySet()) {
-//			if (getVerticesWithVar("~" + var).contains(v)) {
-//				if (vars.equals(""))
-//					vars = "\u00AC"+var;
-//				else
-//					vars += ",\u00AC" + var;
-//			}
-//		}
+		// TODO used for testing
+		// for (String var : getNegValuation().keySet()) {
+		// if (getVerticesWithVar("~" + var).contains(v)) {
+		// if (vars.equals(""))
+		// vars = "\u00AC"+var;
+		// else
+		// vars += ",\u00AC" + var;
+		// }
+		// }
 
 		return vars;
 	}
@@ -116,7 +116,7 @@ public class Modal {
 			return false;
 
 		if (var.startsWith("~")) {
-			
+
 			if (getVerticesWithVar(var).contains(index))
 				return false;
 			if (!containsVar(var)) {
@@ -152,41 +152,84 @@ public class Modal {
 		}
 		return getValuation().containsKey(var);
 	}
-	
-	public ArrayList<ArrayList<String>> getLabelFingerprint(){
+
+	public ArrayList<ArrayList<String>> getLabelFingerprint() {
 		ArrayList<ArrayList<String>> fingerprint = new ArrayList<>();
-		
+
 		for (int i = 0; i < getVertices().size(); i++) {
 			fingerprint.add(getVarsFromVertex(i));
 		}
-		
+
 		return fingerprint;
 	}
-	
-	public boolean hasFingerprint(ArrayList<ArrayList<String>> fp){
+
+	public boolean hasFingerprint(ArrayList<ArrayList<String>> fp, boolean useOrbits) {
 		boolean identical = true;
-		
-		for (int i = 0; i < getVertices().size(); i++) {
-			ArrayList<String> ownVars = getVarsFromVertex(i);
-			ArrayList<String> extVars = fp.get(i);
+
+		if (useOrbits) {
+
+			ArrayList<Integer> done = new ArrayList<>();
 			
-			for (String s : extVars) {
-				if(!ownVars.contains(s)){
+			vertexloop: for (int i = 0; i < getVertices().size(); i++) {
+				ArrayList<String> ownVars = getVarsFromVertex(i);
+				
+				int orbit = getGraph().getOrbit(i);
+				ArrayList<Integer> potentialMatchings = getGraph().getOrbitGroup(orbit);
+				potentialMatchings.removeAll(done);
+				
+				boolean isMatched = false;
+				
+				for (Integer vertex : potentialMatchings) {
+
+					boolean match = true;
+					ArrayList<String> extVars = fp.get(vertex);
+
+					for (String s : extVars) {
+						if (!ownVars.contains(s)) {
+							match = false;
+						}
+					}
+
+					for (String s : ownVars) {
+						if (!extVars.contains(s)) {
+							match = false;
+						}
+					}
+					
+					if(match){
+						done.add(vertex);
+						isMatched = true;
+						break;
+					}
+				}
+				
+				if(!isMatched){
 					identical = false;
-					break;
+					break vertexloop;
 				}
 			}
-			
-			if(identical){
-				for (String s : ownVars) {
-					if(!extVars.contains(s)){
+		} else {
+
+			vertexloop: for (int i = 0; i < getVertices().size(); i++) {
+				ArrayList<String> ownVars = getVarsFromVertex(i);
+				ArrayList<String> extVars = fp.get(i);
+
+				for (String s : extVars) {
+					if (!ownVars.contains(s)) {
 						identical = false;
-						break;
+						break vertexloop;
+					}
+				}
+
+				for (String s : ownVars) {
+					if (!extVars.contains(s)) {
+						identical = false;
+						break vertexloop;
 					}
 				}
 			}
 		}
-		
+
 		return identical;
 	}
 
@@ -218,8 +261,8 @@ public class Modal {
 	}
 
 	public boolean isCompatible(Modal m) {
-//		if (!this.getGraph().isomorphic(m.getGraph()))
-//			return false;
+		// if (!this.getGraph().isomorphic(m.getGraph()))
+		// return false;
 
 		for (int index : graph.getVertices()) {
 			for (String var : this.getVarsFromVertex(index)) {
@@ -231,7 +274,7 @@ public class Modal {
 					return false;
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -244,25 +287,25 @@ public class Modal {
 
 		for (String var : m.getNegValuation().keySet()) {
 			for (Integer index : m.getNegValuation().get(var)) {
-				addVarToVertex("~"+var, index);
+				addVarToVertex("~" + var, index);
 			}
 		}
 	}
-	
-	public boolean hasAutWithSmallerIndex(int index){
-		if(graph.isOrbitRep(index))
+
+	public boolean hasAutWithSmallerIndex(int index) {
+		if (graph.isOrbitRep(index))
 			return false;
-		
+
 		for (int aut : graph.getOrbitGroup(index)) {
-			if(aut < index){
+			if (aut < index) {
 				ArrayList<String> varsAut = getVarsFromVertex(aut);
 				ArrayList<String> varsIndex = getVarsFromVertex(index);
-				
-				if(varsAut.containsAll(varsIndex) && varsIndex.containsAll(varsAut))
+
+				if (varsAut.containsAll(varsIndex) && varsIndex.containsAll(varsAut))
 					return true;
 			}
 		}
-		
+
 		return false;
 	}
 }
