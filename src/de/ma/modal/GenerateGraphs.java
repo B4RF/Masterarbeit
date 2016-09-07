@@ -37,7 +37,7 @@ public class GenerateGraphs {
 
 	JProgressBar progress;
 
-	String directgCmd = "directg.exe -T";
+	String directgCmd = "directg -T";
 
 	public GenerateGraphs(JProgressBar bar, int maxD, int diam, int maxV, boolean ref, boolean trans, boolean ser, boolean partRef,
 			boolean orb) {
@@ -60,7 +60,7 @@ public class GenerateGraphs {
 		int sum = 0;
 		for (int i = 1; i <= maxVertices; i++) {
 			try {
-				Process gengCount = Runtime.getRuntime().exec("geng.exe -cD" + (maxDegree + 1) + " -u " + i);
+				Process gengCount = Runtime.getRuntime().exec("geng -cD" + (maxDegree + 1) + " -u " + i);
 				BufferedReader reader = new BufferedReader(new InputStreamReader(gengCount.getErrorStream()));
 
 				reader.readLine();
@@ -296,7 +296,7 @@ public class GenerateGraphs {
 		try {
 			curVertices++;
 			if (curVertices <= maxVertices) {
-				Process geng = Runtime.getRuntime().exec("geng.exe -cD" + (maxDegree + 1) + " " + curVertices);
+				Process geng = Runtime.getRuntime().exec("geng -cD" + (maxDegree + 1) + " " + curVertices);
 				genReader = new BufferedReader(new InputStreamReader(geng.getInputStream()));
 
 				curInitVertex = 0;
@@ -348,7 +348,7 @@ public class GenerateGraphs {
 
 	private void calculateOrbits() {
 		try {
-			Process dreadnaut = Runtime.getRuntime().exec("dreadnaut.exe");
+			Process dreadnaut = Runtime.getRuntime().exec("dreadnaut");
 
 			BufferedWriter dreadWriter = new BufferedWriter(new OutputStreamWriter(dreadnaut.getOutputStream()));
 			BufferedReader dreadReader = new BufferedReader(new InputStreamReader(dreadnaut.getInputStream()));

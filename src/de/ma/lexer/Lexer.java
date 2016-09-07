@@ -4,13 +4,11 @@ package de.ma.lexer;
 public class Lexer {
 	private char peek = ' ';
 	private int inputIndex = 0;
-//	final ArrayList<String> variables = new ArrayList<>();	// vielleicht nicht nötig
 	String input;
 
 	public void setInput(String s) {
 		input = s;
 		inputIndex = 0;
-//		variables.clear();
 	}
 
 	void readch() {
@@ -75,7 +73,6 @@ public class Lexer {
 			if(peek != '.')
 				inputIndex--;
 			String s = b.toString();
-//			variables.add(s);		// Wort eintragen
 			Word w = new Word(s, Tag.VAR);
 			return w;
 		}
