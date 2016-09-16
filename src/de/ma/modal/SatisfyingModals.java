@@ -17,6 +17,8 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.commons.lang3.SystemUtils;
+
 import de.ma.ast.Node;
 import de.ma.treewalker.NNFTreeWalker;
 import de.ma.treewalker.ReduceTreeWalker;
@@ -50,6 +52,15 @@ public class SatisfyingModals extends JFrame {
 		this.serial = ser;
 		this.partialReflexive = partRef;
 		this.useOrbits = orb;
+		
+		//TODO choose nauty files
+		if(SystemUtils.IS_OS_MAC)
+			;
+		else if(SystemUtils.IS_OS_WINDOWS)
+			;
+		else if(SystemUtils.IS_OS_LINUX)
+			;//TODO
+		
 
 		enumList.addListSelectionListener(new ListSelectionListener() {
 
@@ -210,6 +221,8 @@ public class SatisfyingModals extends JFrame {
 		nnf = nnf.replace("+", "\u2295");
 		nnf = nnf.replace("$", "\u25CA");
 		nnf = nnf.replace("#", "\u25A1");
+		nnf = nnf.replace("0", "\u22A5");
+		nnf = nnf.replace("1", "\u22A4");
 
 		return nnf;
 	}

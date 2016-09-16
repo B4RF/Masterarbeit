@@ -324,12 +324,26 @@ public class ReduceTreeWalker extends TreeWalker<Node, Node> {
 	public Node walkBoxNode(Box node, Node arg) {
 		node.setNode(walk(node.getNode(), null));
 		
+		if(node.getNode().getClass() == Constant.class){
+			Constant child = (Constant) node.getNode();
+			
+			if(child.getValue() ==  true)
+				return child;
+		}
+		
 		return node;
 	}
 
 	@Override
 	public Node walkDiamondNode(Diamond node, Node arg) {
 		node.setNode(walk(node.getNode(), null));
+		
+		if(node.getNode().getClass() == Constant.class){
+			Constant child = (Constant) node.getNode();
+			
+			if(child.getValue() ==  false)
+				return child;
+		}
 		
 		return node;
 	}

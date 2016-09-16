@@ -8,6 +8,8 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+import org.apache.commons.lang3.SystemUtils;
+
 import att.grappa.Attribute;
 import att.grappa.Edge;
 import att.grappa.Graph;
@@ -49,9 +51,18 @@ public class VisualizeGraph {
 			// n.setAttribute(Attribute.FILLCOLOR_ATTR, Color.RED);
 			// n.setAttribute(Attribute.FONTCOLOR_ATTR, Color.RED);
 		}
-
-		String[] processArgs = { "./graphviz-2.38/release/bin/dot.exe",
-				"-Tpng", "-o", "./graph.png" }; // Output-Path
+		
+		String dotPath = "";
+		String pngPath = "./graph.png";
+		
+		if(SystemUtils.IS_OS_MAC)
+			dotPath = "/opt/local/bin/dot";
+		else if(SystemUtils.IS_OS_WINDOWS)
+			dotPath = "C:/Program Files (x86)/Graphviz2.38/bin/dot.exe";
+		else if(SystemUtils.IS_OS_LINUX)
+			;//TODO
+		
+		String[] processArgs = {dotPath, "-Tpng", "-o", pngPath};
 
 		Process formatProcess;
 		try {
@@ -64,7 +75,7 @@ public class VisualizeGraph {
 
 		BufferedImage myPicture;
 		try {
-			myPicture = ImageIO.read(new File("./graph.png"));
+			myPicture = ImageIO.read(new File(pngPath));
 			label.setIcon(new ImageIcon(myPicture));
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -10,6 +10,8 @@ import java.util.LinkedList;
 
 import javax.swing.JProgressBar;
 
+import org.apache.commons.lang3.SystemUtils;
+
 public class GenerateGraphs {
 	int maxDegree;
 	int diameter;
@@ -37,6 +39,7 @@ public class GenerateGraphs {
 
 	JProgressBar progress;
 
+	String toolPath = "";
 	String directgCmd = "directg -T";
 
 	public GenerateGraphs(JProgressBar bar, int maxD, int diam, int maxV, boolean ref, boolean trans, boolean ser, boolean partRef,
@@ -50,6 +53,13 @@ public class GenerateGraphs {
 		this.useOrbits = orb;
 
 		this.maxVertices = maxV;
+		
+		if(SystemUtils.IS_OS_MAC)
+			toolPath = "./nauty/Mac/";
+		else if(SystemUtils.IS_OS_WINDOWS)
+			toolPath = "./nauty/Windows/";
+		else if(SystemUtils.IS_OS_LINUX)
+			;//TODO
 
 		if (reflexive)
 			this.partReflexive = false;
@@ -60,7 +70,7 @@ public class GenerateGraphs {
 		int sum = 0;
 		for (int i = 1; i <= maxVertices; i++) {
 			try {
-				Process gengCount = Runtime.getRuntime().exec("geng -cD" + (maxDegree + 1) + " -u " + i);
+				Process gengCount = Runtime.getRuntime().exec(toolPath + "geng -cD" + (maxDegree + 1) + " -u " + i);
 				BufferedReader reader = new BufferedReader(new InputStreamReader(gengCount.getErrorStream()));
 
 				reader.readLine();
@@ -76,7 +86,7 @@ public class GenerateGraphs {
 		try {
 			generateGraphs();
 
-			Process directg = Runtime.getRuntime().exec(directgCmd);
+			Process directg = Runtime.getRuntime().exec(toolPath + directgCmd);
 
 			dirReader = new BufferedReader(new InputStreamReader(directg.getInputStream()));
 			BufferedWriter dirWriter = new BufferedWriter(new OutputStreamWriter(directg.getOutputStream()));
@@ -126,7 +136,7 @@ public class GenerateGraphs {
 
 									if (!graph.equals(lastLine)) {
 
-										Process directg = Runtime.getRuntime().exec(directgCmd);
+										Process directg = Runtime.getRuntime().exec(toolPath + directgCmd);
 										BufferedWriter dirWriter = new BufferedWriter(
 												new OutputStreamWriter(directg.getOutputStream()));
 										dirReader = new BufferedReader(new InputStreamReader(directg.getInputStream()));
@@ -296,7 +306,7 @@ public class GenerateGraphs {
 		try {
 			curVertices++;
 			if (curVertices <= maxVertices) {
-				Process geng = Runtime.getRuntime().exec("geng -cD" + (maxDegree + 1) + " " + curVertices);
+				Process geng = Runtime.getRuntime().exec(toolPath + "geng -cD" + (maxDegree + 1) + " " + curVertices);
 				genReader = new BufferedReader(new InputStreamReader(geng.getInputStream()));
 
 				curInitVertex = 0;
@@ -348,7 +358,7 @@ public class GenerateGraphs {
 
 	private void calculateOrbits() {
 		try {
-			Process dreadnaut = Runtime.getRuntime().exec("dreadnaut");
+			Process dreadnaut = Runtime.getRuntime().exec(toolPath + "dreadnaut");
 
 			BufferedWriter dreadWriter = new BufferedWriter(new OutputStreamWriter(dreadnaut.getOutputStream()));
 			BufferedReader dreadReader = new BufferedReader(new InputStreamReader(dreadnaut.getInputStream()));

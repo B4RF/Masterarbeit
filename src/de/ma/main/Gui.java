@@ -30,8 +30,8 @@ public class Gui extends JFrame {
 	static JCheckBox reflexive = new JCheckBox("reflexive");
 	static JCheckBox transitive = new JCheckBox("transitive");
 	static JCheckBox serial = new JCheckBox("serial");
-	static JCheckBox partReflexive = new JCheckBox("generate partially reflexive graphs");
-	static JCheckBox orbits = new JCheckBox("use orbits");
+	static JCheckBox partReflexive = new JCheckBox("generate partially reflexive graphs", true);
+	static JCheckBox orbits = new JCheckBox("use orbits", true);
 	static JButton enumerate = new JButton("Enumerate");
 
 	static Lexer lex = new Lexer();

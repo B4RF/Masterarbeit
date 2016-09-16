@@ -132,6 +132,11 @@ public class LabelGraph {
 			if (modal.addVarToVertex(var, vertex.getIndex()))
 				labeled.add(modal);
 			break;
+		case '0':
+			break;
+		case '1':
+			labeled.add(modal);
+			break;
 		default:
 			throw new Error("Token error while labeling");
 		}
