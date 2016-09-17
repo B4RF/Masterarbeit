@@ -121,15 +121,10 @@ public class SatisfyingModals extends JFrame {
 		protected List<String> doInBackground() throws Exception {
 			JProgressBar progress = new JProgressBar();
 			getContentPane().add(progress, BorderLayout.SOUTH);
-
+			
 			int maxDegree = root.getMaxDegree() + 1;
 			int diameter = root.getModalDepth() * 2;
-
-			StringTreeWalker stw = new StringTreeWalker();
-			String input = stw.walk(root, null);
-			// maximal vertices for minimal graph is equals number of diamonds
-			// plus one
-			int maxVertices = input.length() - input.replace("$", "").length() + 1;
+			int maxVertices = root.getNumberDiamonds() + 1;
 
 			GenerateGraphs genG = new GenerateGraphs(progress, maxDegree, diameter, maxVertices, reflexive, transitive, serial,
 					partialReflexive, useOrbits);

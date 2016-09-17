@@ -3,6 +3,7 @@ package de.ma.tree;
 import de.ma.lexer.Token;
 import de.ma.treewalker.FormulaSizeTreeWalker;
 import de.ma.treewalker.ModalDepthTreeWalker;
+import de.ma.treewalker.NumberDiamondsTreeWalker;
 import de.ma.treewalker.TreeWalker;
 
 public abstract class Node implements Cloneable {
@@ -32,5 +33,11 @@ public abstract class Node implements Cloneable {
 		FormulaSizeTreeWalker fstw = new FormulaSizeTreeWalker();
 
 		return fstw.walk(this, null);
+	}
+
+	public int getNumberDiamonds() {
+		NumberDiamondsTreeWalker ndtw = new NumberDiamondsTreeWalker();
+
+		return ndtw.walk(this, 0);
 	}
 }
