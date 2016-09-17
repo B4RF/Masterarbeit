@@ -16,10 +16,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import de.ma.ast.Node;
 import de.ma.lexer.Lexer;
 import de.ma.modal.SatisfyingModals;
 import de.ma.parser.Parser;
+import de.ma.tree.Node;
 
 public class Gui extends JFrame {
 	private static final long serialVersionUID = 1L;

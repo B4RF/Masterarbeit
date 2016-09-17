@@ -8,7 +8,7 @@ import java.util.Set;
 
 import javax.swing.JLabel;
 
-import de.ma.ast.Node;
+import de.ma.tree.Node;
 import de.ma.treewalker.MlMcTreeWalker;
 import de.ma.visuals.VisualizeGraph;
 

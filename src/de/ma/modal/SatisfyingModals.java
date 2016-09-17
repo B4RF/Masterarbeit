@@ -19,7 +19,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.lang3.SystemUtils;
 
-import de.ma.ast.Node;
+import de.ma.tree.Node;
 import de.ma.treewalker.NNFTreeWalker;
 import de.ma.treewalker.ReduceTreeWalker;
 import de.ma.treewalker.StringTreeWalker;
@@ -122,8 +122,7 @@ public class SatisfyingModals extends JFrame {
 			JProgressBar progress = new JProgressBar();
 			getContentPane().add(progress, BorderLayout.SOUTH);
 
-			// TODO change
-			int maxDegree = root.getMaxDegree();
+			int maxDegree = root.getMaxDegree() + 1;
 			int diameter = root.getModalDepth() * 2;
 
 			StringTreeWalker stw = new StringTreeWalker();

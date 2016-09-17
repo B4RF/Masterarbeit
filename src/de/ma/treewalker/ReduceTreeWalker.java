@@ -1,18 +1,18 @@
 package de.ma.treewalker;
 
-import de.ma.ast.And;
-import de.ma.ast.Biconditional;
-import de.ma.ast.Box;
-import de.ma.ast.Constant;
-import de.ma.ast.Diamond;
-import de.ma.ast.Implication;
-import de.ma.ast.Negimplication;
-import de.ma.ast.Node;
-import de.ma.ast.Not;
-import de.ma.ast.Or;
-import de.ma.ast.Variable;
-import de.ma.ast.Xor;
 import de.ma.lexer.Token;
+import de.ma.tree.And;
+import de.ma.tree.Biconditional;
+import de.ma.tree.Box;
+import de.ma.tree.Constant;
+import de.ma.tree.Diamond;
+import de.ma.tree.Implication;
+import de.ma.tree.Negimplication;
+import de.ma.tree.Node;
+import de.ma.tree.Not;
+import de.ma.tree.Or;
+import de.ma.tree.Variable;
+import de.ma.tree.Xor;
 
 public class ReduceTreeWalker extends TreeWalker<Node, Node> {
 

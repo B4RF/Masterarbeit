@@ -2,15 +2,15 @@ package de.ma.modal;
 
 import java.util.ArrayList;
 
-import de.ma.ast.And;
-import de.ma.ast.Box;
-import de.ma.ast.Diamond;
-import de.ma.ast.Node;
-import de.ma.ast.Not;
-import de.ma.ast.Or;
-import de.ma.ast.Variable;
 import de.ma.lexer.Tag;
 import de.ma.lexer.Word;
+import de.ma.tree.And;
+import de.ma.tree.Box;
+import de.ma.tree.Diamond;
+import de.ma.tree.Node;
+import de.ma.tree.Not;
+import de.ma.tree.Or;
+import de.ma.tree.Variable;
 import de.ma.treewalker.AndOrTreeWalker;
 import de.ma.treewalker.NNFTreeWalker;
 

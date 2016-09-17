@@ -1,19 +1,19 @@
-package de.ma.ast;
+package de.ma.tree;
 
 import de.ma.lexer.Token;
 import de.ma.treewalker.TreeWalker;
 
-public class Box extends Unary {
+public class Not extends Unary {
 
-	public Box(Token tok, Node n) {
+	public Not(Token tok, Node n) {
 		super(tok, n);
 	}
 
 	public <ReturnType, ArgumentType> ReturnType walk(TreeWalker<ReturnType, ArgumentType> walker, ArgumentType arg) {
-		return walker.walkBoxNode(this, arg);
+		return walker.walkNotNode(this, arg);
 	}
 	
-	public Box clone(){
-		return new Box(getToken(), getNode().clone());
+	public Not clone(){
+		return new Not(getToken(), getNode().clone());
 	}
 }

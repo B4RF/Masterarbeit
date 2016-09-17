@@ -70,7 +70,7 @@ public class GenerateGraphs {
 		int sum = 0;
 		for (int i = 1; i <= maxVertices; i++) {
 			try {
-				Process gengCount = Runtime.getRuntime().exec(toolPath + "geng -cD" + (maxDegree + 1) + " -u " + i);
+				Process gengCount = Runtime.getRuntime().exec(toolPath + "geng -cD" + maxDegree + " -u " + i);
 				BufferedReader reader = new BufferedReader(new InputStreamReader(gengCount.getErrorStream()));
 
 				reader.readLine();
@@ -306,7 +306,7 @@ public class GenerateGraphs {
 		try {
 			curVertices++;
 			if (curVertices <= maxVertices) {
-				Process geng = Runtime.getRuntime().exec(toolPath + "geng -cD" + (maxDegree + 1) + " " + curVertices);
+				Process geng = Runtime.getRuntime().exec(toolPath + "geng -cD" + maxDegree + " " + curVertices);
 				genReader = new BufferedReader(new InputStreamReader(geng.getInputStream()));
 
 				curInitVertex = 0;

@@ -1,4 +1,4 @@
-package de.ma.ast;
+package de.ma.tree;
 
 import de.ma.lexer.Token;
 import de.ma.treewalker.FormulaSizeTreeWalker;
