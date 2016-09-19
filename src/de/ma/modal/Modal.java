@@ -82,15 +82,16 @@ public class Modal {
 			}
 		}
 
-		// TODO used for testing
-		// for (String var : getNegValuation().keySet()) {
-		// if (getVerticesWithVar("~" + var).contains(v)) {
-		// if (vars.equals(""))
-		// vars = "\u00AC"+var;
-		// else
-		// vars += ",\u00AC" + var;
-		// }
-		// }
+		// used for testing
+		
+//		for (String var : getNegValuation().keySet()) {
+//			if (getVerticesWithVar("~" + var).contains(v)) {
+//				if (vars.equals(""))
+//					vars = "\u00AC" + var;
+//				else
+//					vars += ",\u00AC" + var;
+//			}
+//		}
 
 		return vars;
 	}
@@ -169,16 +170,16 @@ public class Modal {
 		if (useOrbits) {
 
 			ArrayList<Integer> done = new ArrayList<>();
-			
+
 			vertexloop: for (int i = 0; i < getVertices().size(); i++) {
 				ArrayList<String> ownVars = getVarsFromVertex(i);
-				
+
 				int orbit = getGraph().getOrbit(i);
 				ArrayList<Integer> potentialMatchings = getGraph().getOrbitGroup(orbit);
 				potentialMatchings.removeAll(done);
-				
+
 				boolean isMatched = false;
-				
+
 				for (Integer vertex : potentialMatchings) {
 
 					boolean match = true;
@@ -195,15 +196,15 @@ public class Modal {
 							match = false;
 						}
 					}
-					
-					if(match){
+
+					if (match) {
 						done.add(vertex);
 						isMatched = true;
 						break;
 					}
 				}
-				
-				if(!isMatched){
+
+				if (!isMatched) {
 					identical = false;
 					break vertexloop;
 				}

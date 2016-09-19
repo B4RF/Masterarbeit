@@ -4,7 +4,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -15,6 +18,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
+import org.apache.commons.lang3.SystemUtils;
 
 import de.ma.lexer.Lexer;
 import de.ma.modal.SatisfyingModals;
@@ -44,8 +49,6 @@ public class Gui extends JFrame {
 		setResizable(false);
 		add(mainPanel);
 
-		// TODO change font
-		// enumerate.setFont(enumerate.getFont().deriveFont(30F));
 		GridBagConstraints c = new GridBagConstraints();
 
 		JLabel text = new JLabel("Insert modallogic formula:");
@@ -166,6 +169,65 @@ public class Gui extends JFrame {
 
 		partReflexive.setToolTipText("Needs orbits for computation.");
 		orbits.setToolTipText("Removes duplicates but is time expensive.");
+		
+		extractNauty();
+	}
+
+	private void extractNauty() {
+		String path = "nauty/";
+
+		File f = new File("./" + path);
+		f.mkdir();
+
+		if (SystemUtils.IS_OS_MAC) {
+
+			if (!new File(path + "geng").exists())
+				extractFile("gengM", "./" + path + "geng");
+			if (!new File(path + "directg").exists())
+				extractFile("directgM", "./" + path + "directg");
+			if (!new File(path + "dreadnaut").exists())
+				extractFile("dreadnautM", "./" + path + "dreadnaut");
+
+		} else if (SystemUtils.IS_OS_WINDOWS) {
+
+			if (!new File(path + "geng.exe").exists())
+				extractFile("gengW.exe", ".\\" + path + "geng.exe");
+			if (!new File(path + "directg.exe").exists())
+				extractFile("directgW.exe", ".\\" + path + "directg.exe");
+			if (!new File(path + "dreadnaut.exe").exists())
+				extractFile("dreadnautW.exe", ".\\" + path + "dreadnaut.exe");
+
+		} else if (SystemUtils.IS_OS_LINUX) {
+
+			if (!new File(path + "geng").exists()){
+				extractFile("gengL", "./" + path + "geng");
+				new File("./nauty/geng").setExecutable(true);
+			}
+			if (!new File(path + "directg").exists()){
+				extractFile("directgL", "./" + path + "directg");
+				new File("./nauty/directg").setExecutable(true);
+			}
+			if (!new File(path + "dreadnaut").exists()){
+				extractFile("dreadnautL", "./" + path + "dreadnaut");
+				new File("./nauty/dreadnaut").setExecutable(true);
+			}
+		}
+	}
+
+	private void extractFile(String source, String target) {
+		try {
+			InputStream stream = getClass().getResourceAsStream(source);
+			FileOutputStream os = new FileOutputStream(new File(target));
+
+			for (int read = 0; (read = stream.read()) != -1;) {
+				os.write(read);
+			}
+
+			os.flush();
+			os.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	public static void main(String[] args) throws IOException {

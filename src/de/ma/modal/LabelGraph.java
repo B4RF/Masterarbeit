@@ -49,8 +49,6 @@ public class LabelGraph {
 					break;
 				}
 
-				// TODO check for isomorphic subgraphs
-
 				if (combinedModals.isEmpty())
 					combinedModals = currentModals;
 				else

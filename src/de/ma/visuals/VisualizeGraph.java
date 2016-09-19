@@ -47,13 +47,10 @@ public class VisualizeGraph {
 			
 			graph.addEdge(start);
 			invis.setAttribute(Attribute.STYLE_ATTR, "invis");
-			// n.setAttribute(Attribute.COLOR_ATTR, Color.RED);
-			// n.setAttribute(Attribute.FILLCOLOR_ATTR, Color.RED);
-			// n.setAttribute(Attribute.FONTCOLOR_ATTR, Color.RED);
 		}
 		
 		String dotPath = "";
-		String pngPath = "./graph.png";
+		String pngPath = System.getProperty("java.io.tmpdir") + "graph.png";
 		
 		if(SystemUtils.IS_OS_MAC)
 			dotPath = "/opt/local/bin/dot";

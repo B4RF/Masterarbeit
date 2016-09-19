@@ -17,8 +17,6 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.commons.lang3.SystemUtils;
-
 import de.ma.tree.Node;
 import de.ma.treewalker.NNFTreeWalker;
 import de.ma.treewalker.ReduceTreeWalker;
@@ -41,7 +39,7 @@ public class SatisfyingModals extends JFrame {
 	JLabel imageLabel = new JLabel();
 
 	int modalIndex = -1;
-	
+
 	Container pane;
 	GeneratingTimeDiagram gtd;
 
@@ -52,29 +50,20 @@ public class SatisfyingModals extends JFrame {
 		this.serial = ser;
 		this.partialReflexive = partRef;
 		this.useOrbits = orb;
-		
-		//TODO choose nauty files
-		if(SystemUtils.IS_OS_MAC)
-			;
-		else if(SystemUtils.IS_OS_WINDOWS)
-			;
-		else if(SystemUtils.IS_OS_LINUX)
-			;//TODO
-		
 
 		enumList.addListSelectionListener(new ListSelectionListener() {
 
 			@Override
 			public void valueChanged(ListSelectionEvent evt) {
 				String selection = enumList.getSelectedValue();
-				
-				if(selection.equals("delayDiagram")){
+
+				if (selection.equals("delayDiagram")) {
 					pane.remove(0);
 					pane.add(gtd.getDelayPanel(), BorderLayout.CENTER, 0);
-				}else if(selection.equals("timeDiagram")){
+				} else if (selection.equals("timeDiagram")) {
 					pane.remove(0);
 					pane.add(gtd.getTimePanel(), BorderLayout.CENTER, 0);
-				}else{
+				} else {
 					pane.remove(0);
 					pane.add(imageLabel, BorderLayout.CENTER, 0);
 					int index = Integer.parseInt(selection.substring(6));
@@ -85,35 +74,35 @@ public class SatisfyingModals extends JFrame {
 						m.draw(imageLabel);
 					}
 				}
-				
+
 				pane.repaint();
 				pack();
 			}
 		});
-		
+
 		gtd = new GeneratingTimeDiagram();
 		listModel.addElement("delayDiagram");
 		listModel.addElement("timeDiagram");
-		
+
 		pane = this.getContentPane();
 		pane.add(new JLabel(computeNNF(), SwingConstants.CENTER), BorderLayout.NORTH);
 		pane.add(new JScrollPane(enumList), BorderLayout.WEST);
 		pane.add(gtd.getDelayPanel(), BorderLayout.CENTER, 0);
-		
+
 		setTitle("Satisfying Models");
 		pack();
 		setLocationRelativeTo(null);
 		setVisible(true);
-		
+
 		Generator g = new Generator(this);
 		g.execute();
 	}
-	
-	private class Generator extends SwingWorker<List<String>, Modal>{
-		
+
+	private class Generator extends SwingWorker<List<String>, Modal> {
+
 		JFrame frame;
-		
-		public  Generator(JFrame f){
+
+		public Generator(JFrame f) {
 			this.frame = f;
 		}
 
@@ -121,23 +110,23 @@ public class SatisfyingModals extends JFrame {
 		protected List<String> doInBackground() throws Exception {
 			JProgressBar progress = new JProgressBar();
 			getContentPane().add(progress, BorderLayout.SOUTH);
-			
+
 			int maxDegree = root.getMaxDegree() + 1;
 			int diameter = root.getModalDepth() * 2;
 			int maxVertices = root.getNumberDiamonds() + 1;
 
-			GenerateGraphs genG = new GenerateGraphs(progress, maxDegree, diameter, maxVertices, reflexive, transitive, serial,
-					partialReflexive, useOrbits);
+			GenerateGraphs genG = new GenerateGraphs(progress, maxDegree, diameter, maxVertices, reflexive, transitive,
+					serial, partialReflexive, useOrbits);
 
 			LabelGraph labelG = new LabelGraph();
 			Graph currentGraph;
 			gtd.start();
 
 			while ((currentGraph = genG.nextGraph()) != null) {
-				
+
 				ArrayList<Modal> labeled = labelG.labelGraph(new Modal(currentGraph), root);
 				ArrayList<ArrayList<ArrayList<String>>> fingerprints = new ArrayList<>();
-				
+
 				boolean minimal;
 
 				for (Modal m : labeled) {
@@ -160,11 +149,11 @@ public class SatisfyingModals extends JFrame {
 					if (minimal) {
 						boolean dup = false;
 						for (ArrayList<ArrayList<String>> fp : fingerprints) {
-							if(m.hasFingerprint(fp, useOrbits))
+							if (m.hasFingerprint(fp, useOrbits))
 								dup = true;
 						}
-						
-						if(!dup){
+
+						if (!dup) {
 							fingerprints.add(m.getLabelFingerprint());
 							gtd.update(1);
 							publish(m);
@@ -172,12 +161,12 @@ public class SatisfyingModals extends JFrame {
 					}
 				}
 			}
-			
-			Thread.sleep(100);	// takes care of the delay from publish
-			if(enumModals.size() == 0){
+
+			Thread.sleep(100); // takes care of the delay from publish
+			if (enumModals.size() == 0) {
 				frame.dispose();
 				JOptionPane.showMessageDialog(frame, "No satisfying modal generated.");
-			}else{
+			} else {
 				frame.remove(progress);
 			}
 			return null;
@@ -189,10 +178,10 @@ public class SatisfyingModals extends JFrame {
 				enumModals.add(m);
 				listModel.addElement("Graph " + (enumModals.size() - 1));
 
-//				if (enumModals.size() == 1) {
-//					enumModals.get(0).draw(imageLabel);
-//					pack();
-//				}
+				// if (enumModals.size() == 1) {
+				// enumModals.get(0).draw(imageLabel);
+				// pack();
+				// }
 			}
 		}
 	}

@@ -10,8 +10,6 @@ import java.util.LinkedList;
 
 import javax.swing.JProgressBar;
 
-import org.apache.commons.lang3.SystemUtils;
-
 public class GenerateGraphs {
 	int maxDegree;
 	int diameter;
@@ -39,8 +37,10 @@ public class GenerateGraphs {
 
 	JProgressBar progress;
 
-	String toolPath = "";
+	String toolPath = "./nauty/";
+	String gengCmd = "geng -cD";
 	String directgCmd = "directg -T";
+	String dreadnautCmd = "dreadnaut";
 
 	public GenerateGraphs(JProgressBar bar, int maxD, int diam, int maxV, boolean ref, boolean trans, boolean ser, boolean partRef,
 			boolean orb) {
@@ -54,13 +54,6 @@ public class GenerateGraphs {
 
 		this.maxVertices = maxV;
 		
-		if(SystemUtils.IS_OS_MAC)
-			toolPath = "./nauty/Mac/";
-		else if(SystemUtils.IS_OS_WINDOWS)
-			toolPath = "./nauty/Windows/";
-		else if(SystemUtils.IS_OS_LINUX)
-			toolPath = "./nauty/Linux/";
-
 		if (reflexive)
 			this.partReflexive = false;
 		else
@@ -70,7 +63,7 @@ public class GenerateGraphs {
 		int sum = 0;
 		for (int i = 1; i <= maxVertices; i++) {
 			try {
-				Process gengCount = Runtime.getRuntime().exec(toolPath + "geng -cD" + maxDegree + " -u " + i);
+				Process gengCount = Runtime.getRuntime().exec(toolPath + gengCmd + maxDegree + " -u " + i);
 				BufferedReader reader = new BufferedReader(new InputStreamReader(gengCount.getErrorStream()));
 
 				reader.readLine();
@@ -175,7 +168,6 @@ public class GenerateGraphs {
 		// remove graphs with depth higher than modal depth
 		if (curGraph.allVertReach() && (curGraph.getDepth() <= diameter / 2)) {
 
-			// TODO vielleicht transitive hülle nutzen
 			if (transitive) {
 				// uRv & vRw -> uRw
 				for (Integer u : curGraph.getVertices()) {
@@ -306,9 +298,9 @@ public class GenerateGraphs {
 		try {
 			curVertices++;
 			if (curVertices <= maxVertices) {
-				Process geng = Runtime.getRuntime().exec(toolPath + "geng -cD" + maxDegree + " " + curVertices);
+				Process geng = Runtime.getRuntime().exec(toolPath + gengCmd + maxDegree + " " + curVertices);
 				genReader = new BufferedReader(new InputStreamReader(geng.getInputStream()));
-
+				
 				curInitVertex = 0;
 				preDecode = true;
 				return true;
