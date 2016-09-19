@@ -60,7 +60,7 @@ public class VisualizeGraph {
 		else if(SystemUtils.IS_OS_WINDOWS)
 			dotPath = "C:/Program Files (x86)/Graphviz2.38/bin/dot.exe";
 		else if(SystemUtils.IS_OS_LINUX)
-			;//TODO
+			dotPath = "dot";
 		
 		String[] processArgs = {dotPath, "-Tpng", "-o", pngPath};
 

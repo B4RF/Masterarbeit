@@ -59,7 +59,7 @@ public class GenerateGraphs {
 		else if(SystemUtils.IS_OS_WINDOWS)
 			toolPath = "./nauty/Windows/";
 		else if(SystemUtils.IS_OS_LINUX)
-			;//TODO
+			toolPath = "./nauty/Linux/";
 
 		if (reflexive)
 			this.partReflexive = false;
