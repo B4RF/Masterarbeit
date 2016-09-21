@@ -161,6 +161,8 @@ public class SatisfyingModals extends JFrame {
 					}
 				}
 			}
+			
+			//TODO gtd.update(1) for testing
 
 			Thread.sleep(100); // takes care of the delay from publish
 			if (enumModals.size() == 0) {
@@ -197,7 +199,7 @@ public class SatisfyingModals extends JFrame {
 
 		nnf = nnf.replace("&", "\u2227");
 		nnf = nnf.replace("|", "\u2228");
-		nnf = nnf.replace("~>", "\u2227\u00AC"); // TODO change?
+		nnf = nnf.replace("~>", "\u219B");
 		nnf = nnf.replace("~", "\u00AC");
 		nnf = nnf.replace("<->", "\u2194");
 		nnf = nnf.replace("->", "\u2192");
