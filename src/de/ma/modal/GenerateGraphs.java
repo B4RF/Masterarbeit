@@ -198,6 +198,10 @@ public class GenerateGraphs {
 
 			return true;
 		} else {
+			if(partReflexive){
+				fullReflexive = true;
+			}
+			
 			return false;
 		}
 	}

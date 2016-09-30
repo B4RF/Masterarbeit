@@ -162,7 +162,8 @@ public class SatisfyingModals extends JFrame {
 				}
 			}
 			
-			//TODO gtd.update(1) for testing
+			//TODO for testing
+			//gtd.update(1);
 
 			Thread.sleep(100); // takes care of the delay from publish
 			if (enumModals.size() == 0) {
