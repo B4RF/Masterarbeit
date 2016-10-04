@@ -29,14 +29,14 @@ public class GeneratingTimeDiagram {
 		timeSeries = new XYSeries("generatedGraphs");
 		final XYSeriesCollection dataset1 = new XYSeriesCollection();
 		dataset1.addSeries(timeSeries);
-		final JFreeChart chart1 = createChart(dataset1, "Generation time", "milliseconds", "number of graphs");
+		final JFreeChart chart1 = createChart(dataset1, "Generation time", "delay [ms]", "number of graphs");
 		timePanel = new ChartPanel(chart1);
 		timePanel.setPreferredSize(new java.awt.Dimension(500, 270));
 
 		delaySeries = new XYSeries("generatedGraphs");
 		final XYSeriesCollection dataset2 = new XYSeriesCollection();
 		dataset2.addSeries(delaySeries);
-		final JFreeChart chart2 = createChart(dataset2, "Generation delay", "graph", "delay");
+		final JFreeChart chart2 = createChart(dataset2, "Generation delay", "number of graphs", "delay [ms]");
 		delayPanel = new ChartPanel(chart2);
 		delayPanel.setPreferredSize(new java.awt.Dimension(500, 270));
 	}
